@@ -12,6 +12,7 @@ enum MenuCommand {
     case refresh
     case requestAccessibility
     case showRules
+    case showDiagnostics
     case quit
 }
 
@@ -54,11 +55,11 @@ final class MenuBuilder {
         if rules.isEmpty {
             menu.addItem(disabledItem("No saved assignments"))
         } else {
+            let runningBundleIDs = Set(runningApps.map(\.bundleID))
             rules.sorted {
                 $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
             }.forEach { rule in
-                let title = "\(rule.displayName) -> Desktop \(rule.desktopNumber)"
-                menu.addItem(disabledItem(title))
+                menu.addItem(savedRuleItem(rule, isRunning: runningBundleIDs.contains(rule.bundleID), target: target))
             }
         }
 
@@ -75,6 +76,7 @@ final class MenuBuilder {
 
         menu.addItem(.separator())
         menu.addItem(actionItem("Settings", command: .showRules, target: target))
+        menu.addItem(actionItem("Diagnostics", command: .showDiagnostics, target: target))
         menu.addItem(actionItem("Refresh", command: .refresh, target: target))
         menu.addItem(actionItem("Quit", command: .quit, target: target))
 
@@ -126,6 +128,28 @@ final class MenuBuilder {
     private func sectionHeader(_ title: String) -> NSMenuItem {
         let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
         item.isEnabled = false
+        return item
+    }
+
+    private func savedRuleItem(
+        _ rule: AppRule,
+        isRunning: Bool,
+        target: MenuActionHandling
+    ) -> NSMenuItem {
+        let item = NSMenuItem(title: "\(rule.displayName) -> Desktop \(rule.desktopNumber)", action: nil, keyEquivalent: "")
+
+        let submenu = NSMenu(title: rule.displayName)
+        submenu.addItem(
+            actionItem(
+                isRunning ? "Open on Assigned Desktop" : "Launch on Assigned Desktop",
+                command: .openAssigned(bundleID: rule.bundleID),
+                target: target
+            )
+        )
+        submenu.addItem(.separator())
+        submenu.addItem(actionItem("Clear Assignment", command: .clear(bundleID: rule.bundleID), target: target))
+
+        item.submenu = submenu
         return item
     }
 

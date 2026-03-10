@@ -4,6 +4,7 @@ final class StatusBarController: NSObject {
     private let appState: AppState
     private let menuBuilder = MenuBuilder()
     private let rulesWindowController = RulesWindowController()
+    private let diagnosticsWindowController = DiagnosticsWindowController()
 
     private var statusItem: NSStatusItem?
 
@@ -26,6 +27,18 @@ final class StatusBarController: NSObject {
         }
         rulesWindowController.onMaxDesktopsChanged = { [weak self] count in
             self?.appState.setMaxDesktopsShown(count)
+        }
+        rulesWindowController.onLaunchDelayChanged = { [weak self] milliseconds in
+            self?.appState.setLaunchDelayMilliseconds(milliseconds)
+        }
+        rulesWindowController.onWatchLaunchesChanged = { [weak self] enabled in
+            self?.appState.setWatchLaunchesEnabled(enabled)
+        }
+        rulesWindowController.onShortcutModifierChanged = { [weak self] modifier in
+            self?.appState.setShortcutModifier(modifier)
+        }
+        rulesWindowController.onShowDiagnostics = { [weak self] in
+            self?.diagnosticsWindowController.show()
         }
 
         appState.onChange = { [weak self] in
@@ -67,7 +80,10 @@ final class StatusBarController: NSObject {
         SettingsSnapshot(
             rules: appState.rules,
             accessibilityTrusted: appState.isAccessibilityTrusted(),
-            maxDesktopsShown: appState.maxDesktopsShown
+            maxDesktopsShown: appState.maxDesktopsShown,
+            launchDelayMilliseconds: appState.launchDelayMilliseconds,
+            watchLaunchesEnabled: appState.watchLaunchesEnabled,
+            shortcutModifier: appState.shortcutModifier
         )
     }
 
@@ -97,6 +113,8 @@ final class StatusBarController: NSObject {
             rebuildMenu()
         case .showRules:
             rulesWindowController.show(snapshot: settingsSnapshot())
+        case .showDiagnostics:
+            diagnosticsWindowController.show()
         case .quit:
             NSApplication.shared.terminate(nil)
         }

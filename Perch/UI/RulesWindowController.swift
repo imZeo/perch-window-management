@@ -4,6 +4,9 @@ struct SettingsSnapshot {
     let rules: [AppRule]
     let accessibilityTrusted: Bool
     let maxDesktopsShown: Int
+    let launchDelayMilliseconds: Int
+    let watchLaunchesEnabled: Bool
+    let shortcutModifier: DesktopShortcutModifier
 }
 
 final class RulesWindowController: NSWindowController {
@@ -12,19 +15,27 @@ final class RulesWindowController: NSWindowController {
     var onOpenRule: ((String) -> Void)?
     var onRemoveRule: ((String) -> Void)?
     var onMaxDesktopsChanged: ((Int) -> Void)?
+    var onLaunchDelayChanged: ((Int) -> Void)?
+    var onWatchLaunchesChanged: ((Bool) -> Void)?
+    var onShortcutModifierChanged: ((DesktopShortcutModifier) -> Void)?
+    var onShowDiagnostics: (() -> Void)?
 
     private let accessibilityStatusLabel = NSTextField(labelWithString: "")
     private let maxDesktopsPopup = NSPopUpButton()
+    private let shortcutModifierPopup = NSPopUpButton()
+    private let launchDelayValueLabel = NSTextField(labelWithString: "")
+    private let launchDelayStepper = NSStepper()
+    private let watchLaunchesCheckbox = NSButton(checkboxWithTitle: "Watch launches and reopen assigned apps", target: nil, action: nil)
     private let tableView = NSTableView()
     private let emptyStateLabel = NSTextField(labelWithString: "No saved assignments yet.")
-    private let openButton = NSButton(title: "Open on Assigned Desktop", target: nil, action: nil)
+    private let openButton = NSButton(title: "Launch on Assigned Desktop", target: nil, action: nil)
     private let removeButton = NSButton(title: "Remove Rule", target: nil, action: nil)
 
     private var rules: [AppRule] = []
 
     init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 680, height: 420),
+            contentRect: NSRect(x: 0, y: 0, width: 760, height: 560),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
@@ -53,35 +64,98 @@ final class RulesWindowController: NSWindowController {
     }
 
     private func configureWindow() {
-        let contentView = NSView(frame: NSRect(x: 0, y: 0, width: 680, height: 420))
-        contentView.translatesAutoresizingMaskIntoConstraints = false
+        let contentView = NSView(frame: NSRect(x: 0, y: 0, width: 760, height: 560))
         window?.contentView = contentView
 
-        let permissionsTitle = sectionLabel("Accessibility")
+        let permissionsSection = makePermissionsSection()
+        let behaviorSection = makeBehaviorSection()
+        let savedAppsSection = makeSavedAppsSection()
+
+        let layoutStack = NSStackView(views: [permissionsSection, behaviorSection, savedAppsSection])
+        layoutStack.translatesAutoresizingMaskIntoConstraints = false
+        layoutStack.orientation = .vertical
+        layoutStack.alignment = .width
+        layoutStack.spacing = 18
+
+        contentView.addSubview(layoutStack)
+
+        NSLayoutConstraint.activate([
+            layoutStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            layoutStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            layoutStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            layoutStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
+        ])
+
+        updateButtons()
+    }
+
+    private func makePermissionsSection() -> NSView {
+        let title = sectionLabel("Accessibility")
         accessibilityStatusLabel.font = .systemFont(ofSize: 13)
         accessibilityStatusLabel.textColor = .secondaryLabelColor
 
-        let permissionsButton = NSButton(title: "Request Access", target: self, action: #selector(requestAccessibility))
-        permissionsButton.bezelStyle = .rounded
+        let requestButton = NSButton(title: "Request Access", target: self, action: #selector(requestAccessibility))
+        requestButton.bezelStyle = .rounded
+
+        let stack = NSStackView(views: [title, accessibilityStatusLabel, requestButton])
+        stack.orientation = .vertical
+        stack.alignment = .leading
+        stack.spacing = 8
+        return stack
+    }
+
+    private func makeBehaviorSection() -> NSView {
+        let title = sectionLabel("Behavior")
 
         let maxDesktopsLabel = NSTextField(labelWithString: "Max desktops shown")
         maxDesktopsLabel.font = .systemFont(ofSize: 13)
-
         maxDesktopsPopup.addItems(withTitles: (1...9).map(String.init))
         maxDesktopsPopup.target = self
         maxDesktopsPopup.action = #selector(changeMaxDesktops)
 
-        let desktopCountRow = NSStackView(views: [maxDesktopsLabel, maxDesktopsPopup])
-        desktopCountRow.orientation = .horizontal
-        desktopCountRow.alignment = .centerY
-        desktopCountRow.spacing = 12
+        let shortcutLabel = NSTextField(labelWithString: "Shortcut assumptions")
+        shortcutLabel.font = .systemFont(ofSize: 13)
+        shortcutModifierPopup.addItems(withTitles: DesktopShortcutModifier.allCases.map(\.title))
+        shortcutModifierPopup.target = self
+        shortcutModifierPopup.action = #selector(changeShortcutModifier)
 
-        let permissionsStack = NSStackView(views: [permissionsTitle, accessibilityStatusLabel, permissionsButton])
-        permissionsStack.orientation = .vertical
-        permissionsStack.alignment = .leading
-        permissionsStack.spacing = 8
+        let shortcutHintLabel = helperLabel("Must match your Mission Control desktop shortcuts.")
 
-        let savedAppsTitle = sectionLabel("Saved Apps")
+        let launchDelayLabel = NSTextField(labelWithString: "Launch delay")
+        launchDelayLabel.font = .systemFont(ofSize: 13)
+        launchDelayStepper.minValue = 50
+        launchDelayStepper.maxValue = 2000
+        launchDelayStepper.increment = 50
+        launchDelayStepper.target = self
+        launchDelayStepper.action = #selector(changeLaunchDelay)
+        launchDelayValueLabel.font = .systemFont(ofSize: 13)
+
+        watchLaunchesCheckbox.target = self
+        watchLaunchesCheckbox.action = #selector(toggleWatchLaunches)
+
+        let diagnosticsButton = NSButton(title: "Open Diagnostics", target: self, action: #selector(showDiagnostics))
+        diagnosticsButton.bezelStyle = .rounded
+
+        let refreshButton = NSButton(title: "Refresh", target: self, action: #selector(refresh))
+        refreshButton.bezelStyle = .rounded
+
+        let maxDesktopsRow = row(label: maxDesktopsLabel, control: maxDesktopsPopup)
+        let shortcutRow = row(label: shortcutLabel, control: shortcutModifierPopup)
+        let launchDelayRow = row(label: launchDelayLabel, controls: [launchDelayValueLabel, launchDelayStepper])
+        let actionsRow = NSStackView(views: [diagnosticsButton, refreshButton])
+        actionsRow.orientation = .horizontal
+        actionsRow.alignment = .centerY
+        actionsRow.spacing = 8
+
+        let stack = NSStackView(views: [title, maxDesktopsRow, shortcutRow, shortcutHintLabel, launchDelayRow, watchLaunchesCheckbox, actionsRow])
+        stack.orientation = .vertical
+        stack.alignment = .width
+        stack.spacing = 10
+        return stack
+    }
+
+    private func makeSavedAppsSection() -> NSView {
+        let title = sectionLabel("Saved Apps")
 
         let scrollView = NSScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -98,8 +172,8 @@ final class RulesWindowController: NSWindowController {
         tableView.doubleAction = #selector(openSelectedRule)
 
         addColumn(title: "App", identifier: "app", width: 170)
-        addColumn(title: "Bundle ID", identifier: "bundleID", width: 300)
-        addColumn(title: "Desktop", identifier: "desktop", width: 100)
+        addColumn(title: "Bundle ID", identifier: "bundleID", width: 320)
+        addColumn(title: "Desktop", identifier: "desktop", width: 110)
 
         emptyStateLabel.alignment = .center
         emptyStateLabel.textColor = .secondaryLabelColor
@@ -114,34 +188,19 @@ final class RulesWindowController: NSWindowController {
         removeButton.action = #selector(removeSelectedRule)
         removeButton.bezelStyle = .rounded
 
-        let refreshButton = NSButton(title: "Refresh", target: self, action: #selector(refresh))
-        refreshButton.bezelStyle = .rounded
-
-        let actionsStack = NSStackView(views: [openButton, removeButton, refreshButton])
+        let actionsStack = NSStackView(views: [openButton, removeButton])
         actionsStack.orientation = .horizontal
         actionsStack.alignment = .centerY
         actionsStack.spacing = 8
 
-        let layoutStack = NSStackView(views: [permissionsStack, desktopCountRow, savedAppsTitle, scrollView, emptyStateLabel, actionsStack])
-        layoutStack.translatesAutoresizingMaskIntoConstraints = false
-        layoutStack.orientation = .vertical
-        layoutStack.alignment = .leading
-        layoutStack.spacing = 14
+        let stack = NSStackView(views: [title, scrollView, emptyStateLabel, actionsStack])
+        stack.orientation = .vertical
+        stack.alignment = .width
+        stack.spacing = 10
 
-        contentView.addSubview(layoutStack)
+        scrollView.heightAnchor.constraint(greaterThanOrEqualToConstant: 240).isActive = true
 
-        NSLayoutConstraint.activate([
-            layoutStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-            layoutStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            layoutStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            layoutStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
-
-            scrollView.widthAnchor.constraint(equalTo: layoutStack.widthAnchor),
-            scrollView.heightAnchor.constraint(greaterThanOrEqualToConstant: 220),
-            emptyStateLabel.widthAnchor.constraint(equalTo: layoutStack.widthAnchor)
-        ])
-
-        updateButtons()
+        return stack
     }
 
     private func apply(snapshot: SettingsSnapshot) {
@@ -154,9 +213,36 @@ final class RulesWindowController: NSWindowController {
             : "Not granted. Perch cannot switch desktops until access is approved."
 
         maxDesktopsPopup.selectItem(withTitle: String(snapshot.maxDesktopsShown))
+        launchDelayStepper.integerValue = snapshot.launchDelayMilliseconds
+        launchDelayValueLabel.stringValue = "\(snapshot.launchDelayMilliseconds) ms"
+        watchLaunchesCheckbox.state = snapshot.watchLaunchesEnabled ? .on : .off
+        shortcutModifierPopup.selectItem(at: DesktopShortcutModifier.allCases.firstIndex(of: snapshot.shortcutModifier) ?? 0)
+
         emptyStateLabel.isHidden = !rules.isEmpty
         tableView.reloadData()
         updateButtons()
+    }
+
+    private func row(label: NSTextField, control: NSView) -> NSStackView {
+        row(label: label, controls: [control])
+    }
+
+    private func row(label: NSTextField, controls: [NSView]) -> NSStackView {
+        let trailingControls = NSStackView(views: controls)
+        trailingControls.orientation = .horizontal
+        trailingControls.alignment = .centerY
+        trailingControls.spacing = 8
+
+        let spacer = NSView()
+        spacer.translatesAutoresizingMaskIntoConstraints = false
+        spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+
+        let row = NSStackView(views: [label, spacer, trailingControls])
+        row.orientation = .horizontal
+        row.alignment = .centerY
+        row.spacing = 12
+        row.detachesHiddenViews = true
+        return row
     }
 
     private func addColumn(title: String, identifier: String, width: CGFloat) {
@@ -169,6 +255,13 @@ final class RulesWindowController: NSWindowController {
     private func sectionLabel(_ title: String) -> NSTextField {
         let label = NSTextField(labelWithString: title)
         label.font = .systemFont(ofSize: 14, weight: .semibold)
+        return label
+    }
+
+    private func helperLabel(_ title: String) -> NSTextField {
+        let label = NSTextField(labelWithString: title)
+        label.font = .systemFont(ofSize: 12)
+        label.textColor = .secondaryLabelColor
         return label
     }
 
@@ -210,6 +303,30 @@ final class RulesWindowController: NSWindowController {
     private func changeMaxDesktops() {
         guard let value = Int(maxDesktopsPopup.selectedItem?.title ?? "") else { return }
         onMaxDesktopsChanged?(value)
+    }
+
+    @objc
+    private func changeLaunchDelay() {
+        let value = launchDelayStepper.integerValue
+        launchDelayValueLabel.stringValue = "\(value) ms"
+        onLaunchDelayChanged?(value)
+    }
+
+    @objc
+    private func toggleWatchLaunches() {
+        onWatchLaunchesChanged?(watchLaunchesCheckbox.state == .on)
+    }
+
+    @objc
+    private func changeShortcutModifier() {
+        let selectedIndex = shortcutModifierPopup.indexOfSelectedItem
+        guard DesktopShortcutModifier.allCases.indices.contains(selectedIndex) else { return }
+        onShortcutModifierChanged?(DesktopShortcutModifier.allCases[selectedIndex])
+    }
+
+    @objc
+    private func showDiagnostics() {
+        onShowDiagnostics?()
     }
 }
 

@@ -13,6 +13,11 @@ final class AppState {
     private(set) var runningApps: [RunningAppInfo] = []
     private(set) var rules: [AppRule] = []
     private(set) var maxDesktopsShown: Int
+    private(set) var launchDelayMilliseconds: Int
+    private(set) var watchLaunchesEnabled: Bool
+    private(set) var shortcutModifier: DesktopShortcutModifier
+
+    private var suppressedLaunchWatchBundleIDs: Set<String> = []
 
     var onChange: (() -> Void)?
 
@@ -35,12 +40,15 @@ final class AppState {
         self.permissionsService = permissionsService
         self.logger = logger
         self.maxDesktopsShown = settingsStore.loadMaxDesktopsShown()
+        self.launchDelayMilliseconds = settingsStore.loadLaunchDelayMilliseconds()
+        self.watchLaunchesEnabled = settingsStore.loadWatchLaunchesEnabled()
+        self.shortcutModifier = settingsStore.loadShortcutModifier()
     }
 
     func start() {
         reload()
-        launchObserver.start { [weak self] in
-            self?.reloadRunningApps()
+        launchObserver.start { [weak self] event in
+            self?.handleLaunchObserverEvent(event)
         }
     }
 
@@ -86,20 +94,24 @@ final class AppState {
             return
         }
 
-        open(bundleID: bundleID, onDesktop: rule.desktopNumber)
+        open(bundleID: bundleID, onDesktop: rule.desktopNumber, suppressLaunchWatch: true)
     }
 
-    func open(bundleID: String, onDesktop desktopNumber: Int) {
+    func open(bundleID: String, onDesktop desktopNumber: Int, suppressLaunchWatch: Bool = false) {
         guard permissionsService.isAccessibilityTrusted(prompt: false) else {
             logger.error("Accessibility permission is required to switch desktops")
             requestAccessibilityIfNeeded()
             return
         }
 
-        logger.info("Opening \(bundleID) on desktop \(desktopNumber)")
-        spaceSwitcher.switchToDesktop(desktopNumber)
+        if suppressLaunchWatch {
+            registerSuppressedLaunchWatch(for: bundleID)
+        }
 
-        let delay = DispatchTime.now() + .milliseconds(250)
+        logger.info("Opening \(bundleID) on desktop \(desktopNumber) with \(shortcutModifier.title)")
+        spaceSwitcher.switchToDesktop(desktopNumber, modifier: shortcutModifier)
+
+        let delay = DispatchTime.now() + .milliseconds(launchDelayMilliseconds)
         DispatchQueue.main.asyncAfter(deadline: delay) { [weak self] in
             self?.appLauncher.launchOrActivate(bundleID: bundleID)
         }
@@ -116,6 +128,61 @@ final class AppState {
     func setMaxDesktopsShown(_ count: Int) {
         maxDesktopsShown = min(max(count, 1), 9)
         settingsStore.saveMaxDesktopsShown(maxDesktopsShown)
+        logger.info("Updated max desktops shown to \(maxDesktopsShown)")
         onChange?()
+    }
+
+    func setLaunchDelayMilliseconds(_ milliseconds: Int) {
+        launchDelayMilliseconds = min(max(milliseconds, 50), 2000)
+        settingsStore.saveLaunchDelayMilliseconds(launchDelayMilliseconds)
+        logger.info("Updated launch delay to \(launchDelayMilliseconds) ms")
+        onChange?()
+    }
+
+    func setWatchLaunchesEnabled(_ enabled: Bool) {
+        watchLaunchesEnabled = enabled
+        settingsStore.saveWatchLaunchesEnabled(enabled)
+        logger.info(enabled ? "Enabled watch launches" : "Disabled watch launches")
+        onChange?()
+    }
+
+    func setShortcutModifier(_ modifier: DesktopShortcutModifier) {
+        shortcutModifier = modifier
+        settingsStore.saveShortcutModifier(modifier)
+        logger.info("Updated shortcut modifier to \(modifier.title)")
+        onChange?()
+    }
+
+    private func handleLaunchObserverEvent(_ event: LaunchObserver.Event) {
+        switch event {
+        case .launched(let application):
+            handleApplicationLaunch(application)
+        case .terminated, .activated:
+            break
+        }
+
+        reloadRunningApps()
+    }
+
+    private func handleApplicationLaunch(_ application: NSRunningApplication) {
+        guard watchLaunchesEnabled else { return }
+        guard let bundleID = application.bundleIdentifier else { return }
+        guard let rule = rule(for: bundleID) else { return }
+
+        if suppressedLaunchWatchBundleIDs.remove(bundleID) != nil {
+            logger.info("Skipped launch watch for \(bundleID) because Perch initiated the launch")
+            return
+        }
+
+        logger.info("Watch launches matched \(bundleID), reopening on desktop \(rule.desktopNumber)")
+        open(bundleID: bundleID, onDesktop: rule.desktopNumber)
+    }
+
+    private func registerSuppressedLaunchWatch(for bundleID: String) {
+        suppressedLaunchWatchBundleIDs.insert(bundleID)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) { [weak self] in
+            self?.suppressedLaunchWatchBundleIDs.remove(bundleID)
+        }
     }
 }

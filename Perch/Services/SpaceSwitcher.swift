@@ -1,7 +1,9 @@
 import Cocoa
 
 final class SpaceSwitcher {
-    func switchToDesktop(_ number: Int) {
+    private let logger = AppLogger(category: "SpaceSwitcher")
+
+    func switchToDesktop(_ number: Int, modifier: DesktopShortcutModifier) {
         guard (1...9).contains(number) else { return }
         guard let keyCode = keyCode(for: number) else { return }
 
@@ -9,11 +11,12 @@ final class SpaceSwitcher {
         let keyDown = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: true)
         let keyUp = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: false)
 
-        keyDown?.flags = .maskControl
-        keyUp?.flags = .maskControl
+        keyDown?.flags = modifier.eventFlags
+        keyUp?.flags = modifier.eventFlags
 
         keyDown?.post(tap: .cghidEventTap)
         keyUp?.post(tap: .cghidEventTap)
+        logger.info("Posted \(modifier.title) shortcut for desktop \(number)")
     }
 
     private func keyCode(for number: Int) -> CGKeyCode? {
