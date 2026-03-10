@@ -103,6 +103,19 @@ final class RulesWindowController: NSWindowController {
         ])
 
         updateButtons()
+        sizeWindowToFitContent()
+    }
+
+    private func sizeWindowToFitContent() {
+        guard let window, let contentView = window.contentView else { return }
+
+        contentView.layoutSubtreeIfNeeded()
+        let fittingSize = contentView.fittingSize
+        guard fittingSize.width > 0, fittingSize.height > 0 else { return }
+
+        window.contentMinSize = fittingSize
+        window.setContentSize(fittingSize)
+        window.center()
     }
 
     private func makePermissionsSection() -> NSView {
