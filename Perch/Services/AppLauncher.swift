@@ -3,7 +3,11 @@ import AppKit
 final class AppLauncher {
     func launchOrActivate(bundleID: String) {
         if let runningApplication = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == bundleID }) {
-            runningApplication.activate(options: [.activateIgnoringOtherApps])
+            if #available(macOS 14.0, *) {
+                _ = runningApplication.activate(options: [])
+            } else {
+                _ = runningApplication.activate(options: [.activateIgnoringOtherApps])
+            }
             return
         }
 
