@@ -24,12 +24,11 @@ final class MenuCommandBox: NSObject {
 }
 
 final class MenuBuilder {
-    private let maxDesktopAssignments = 9
-
     func makeMenu(
         runningApps: [RunningAppInfo],
         rules: [AppRule],
         accessibilityTrusted: Bool,
+        maxDesktopAssignments: Int,
         target: MenuActionHandling
     ) -> NSMenu {
         let menu = NSMenu()
@@ -39,7 +38,14 @@ final class MenuBuilder {
             menu.addItem(disabledItem("No regular apps running"))
         } else {
             runningApps.forEach { app in
-                menu.addItem(runningAppItem(app, rules: rules, target: target))
+                menu.addItem(
+                    runningAppItem(
+                        app,
+                        rules: rules,
+                        maxDesktopAssignments: maxDesktopAssignments,
+                        target: target
+                    )
+                )
             }
         }
 
@@ -64,7 +70,7 @@ final class MenuBuilder {
             command: .requestAccessibility,
             target: target
         )
-        permissionItem.state = accessibilityTrusted ? .on : .off
+        permissionItem.state = accessibilityTrusted ? NSControl.StateValue.on : NSControl.StateValue.off
         menu.addItem(permissionItem)
 
         menu.addItem(.separator())
@@ -78,15 +84,18 @@ final class MenuBuilder {
     private func runningAppItem(
         _ app: RunningAppInfo,
         rules: [AppRule],
+        maxDesktopAssignments: Int,
         target: MenuActionHandling
     ) -> NSMenuItem {
         let item = NSMenuItem(title: app.displayName, action: nil, keyEquivalent: "")
         item.image = app.icon
 
         let submenu = NSMenu(title: app.displayName)
-        if let rule = rules.first(where: { $0.bundleID == app.bundleID }) {
+        let assignedDesktop = rules.first(where: { $0.bundleID == app.bundleID })?.desktopNumber
+
+        if let assignedDesktop {
             submenu.addItem(actionItem(
-                "Open on Desktop \(rule.desktopNumber)",
+                "Open on Desktop \(assignedDesktop)",
                 command: .openAssigned(bundleID: app.bundleID),
                 target: target
             ))
@@ -96,13 +105,14 @@ final class MenuBuilder {
 
         submenu.addItem(.separator())
 
-        for desktop in 1...maxDesktopAssignments {
+        let desktopLimit = max(maxDesktopAssignments, assignedDesktop ?? 1)
+        for desktop in 1...desktopLimit {
             let assignmentItem = actionItem(
                 "Assign to Desktop \(desktop)",
                 command: .assign(bundleID: app.bundleID, displayName: app.displayName, desktopNumber: desktop),
                 target: target
             )
-            assignmentItem.state = rules.first(where: { $0.bundleID == app.bundleID })?.desktopNumber == desktop ? .on : .off
+            assignmentItem.state = assignedDesktop == desktop ? NSControl.StateValue.on : NSControl.StateValue.off
             submenu.addItem(assignmentItem)
         }
 

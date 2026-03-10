@@ -3,6 +3,7 @@ import AppKit
 struct SettingsSnapshot {
     let rules: [AppRule]
     let accessibilityTrusted: Bool
+    let maxDesktopsShown: Int
 }
 
 final class RulesWindowController: NSWindowController {
@@ -10,8 +11,10 @@ final class RulesWindowController: NSWindowController {
     var onRefresh: (() -> Void)?
     var onOpenRule: ((String) -> Void)?
     var onRemoveRule: ((String) -> Void)?
+    var onMaxDesktopsChanged: ((Int) -> Void)?
 
     private let accessibilityStatusLabel = NSTextField(labelWithString: "")
+    private let maxDesktopsPopup = NSPopUpButton()
     private let tableView = NSTableView()
     private let emptyStateLabel = NSTextField(labelWithString: "No saved assignments yet.")
     private let openButton = NSButton(title: "Open on Assigned Desktop", target: nil, action: nil)
@@ -61,6 +64,18 @@ final class RulesWindowController: NSWindowController {
         let permissionsButton = NSButton(title: "Request Access", target: self, action: #selector(requestAccessibility))
         permissionsButton.bezelStyle = .rounded
 
+        let maxDesktopsLabel = NSTextField(labelWithString: "Max desktops shown")
+        maxDesktopsLabel.font = .systemFont(ofSize: 13)
+
+        maxDesktopsPopup.addItems(withTitles: (1...9).map(String.init))
+        maxDesktopsPopup.target = self
+        maxDesktopsPopup.action = #selector(changeMaxDesktops)
+
+        let desktopCountRow = NSStackView(views: [maxDesktopsLabel, maxDesktopsPopup])
+        desktopCountRow.orientation = .horizontal
+        desktopCountRow.alignment = .centerY
+        desktopCountRow.spacing = 12
+
         let permissionsStack = NSStackView(views: [permissionsTitle, accessibilityStatusLabel, permissionsButton])
         permissionsStack.orientation = .vertical
         permissionsStack.alignment = .leading
@@ -107,7 +122,7 @@ final class RulesWindowController: NSWindowController {
         actionsStack.alignment = .centerY
         actionsStack.spacing = 8
 
-        let layoutStack = NSStackView(views: [permissionsStack, savedAppsTitle, scrollView, emptyStateLabel, actionsStack])
+        let layoutStack = NSStackView(views: [permissionsStack, desktopCountRow, savedAppsTitle, scrollView, emptyStateLabel, actionsStack])
         layoutStack.translatesAutoresizingMaskIntoConstraints = false
         layoutStack.orientation = .vertical
         layoutStack.alignment = .leading
@@ -138,6 +153,7 @@ final class RulesWindowController: NSWindowController {
             ? "Granted. Desktop switching is available."
             : "Not granted. Perch cannot switch desktops until access is approved."
 
+        maxDesktopsPopup.selectItem(withTitle: String(snapshot.maxDesktopsShown))
         emptyStateLabel.isHidden = !rules.isEmpty
         tableView.reloadData()
         updateButtons()
@@ -188,6 +204,12 @@ final class RulesWindowController: NSWindowController {
     private func removeSelectedRule() {
         guard let rule = selectedRule() else { return }
         onRemoveRule?(rule.bundleID)
+    }
+
+    @objc
+    private func changeMaxDesktops() {
+        guard let value = Int(maxDesktopsPopup.selectedItem?.title ?? "") else { return }
+        onMaxDesktopsChanged?(value)
     }
 }
 

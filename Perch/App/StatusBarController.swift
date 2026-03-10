@@ -24,6 +24,9 @@ final class StatusBarController: NSObject {
         rulesWindowController.onRemoveRule = { [weak self] bundleID in
             self?.appState.clearAssignment(for: bundleID)
         }
+        rulesWindowController.onMaxDesktopsChanged = { [weak self] count in
+            self?.appState.setMaxDesktopsShown(count)
+        }
 
         appState.onChange = { [weak self] in
             self?.rebuildMenu()
@@ -31,12 +34,22 @@ final class StatusBarController: NSObject {
     }
 
     func installStatusItem() {
-        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        item.button?.title = "Perch"
-        item.button?.toolTip = "Perch Window Management"
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        if let button = item.button {
+            button.image = menuBarImage()
+            button.imagePosition = .imageOnly
+            button.toolTip = "Perch Window Management"
+        }
 
         statusItem = item
         rebuildMenu()
+    }
+
+    private func menuBarImage() -> NSImage? {
+        guard let image = NSImage(named: "MenuBarIcon") else { return nil }
+        image.size = NSSize(width: 18, height: 18)
+        image.isTemplate = false
+        return image
     }
 
     private func rebuildMenu() {
@@ -44,6 +57,7 @@ final class StatusBarController: NSObject {
             runningApps: appState.runningApps,
             rules: appState.rules,
             accessibilityTrusted: appState.isAccessibilityTrusted(),
+            maxDesktopAssignments: appState.maxDesktopsShown,
             target: self
         )
         rulesWindowController.update(snapshot: settingsSnapshot())
@@ -52,7 +66,8 @@ final class StatusBarController: NSObject {
     private func settingsSnapshot() -> SettingsSnapshot {
         SettingsSnapshot(
             rules: appState.rules,
-            accessibilityTrusted: appState.isAccessibilityTrusted()
+            accessibilityTrusted: appState.isAccessibilityTrusted(),
+            maxDesktopsShown: appState.maxDesktopsShown
         )
     }
 

@@ -3,6 +3,7 @@ import AppKit
 final class AppState {
     private let runningAppsService: RunningAppsService
     private let rulesStore: RulesStore
+    private let settingsStore: SettingsStore
     private let spaceSwitcher: SpaceSwitcher
     private let appLauncher: AppLauncher
     private let launchObserver: LaunchObserver
@@ -11,12 +12,14 @@ final class AppState {
 
     private(set) var runningApps: [RunningAppInfo] = []
     private(set) var rules: [AppRule] = []
+    private(set) var maxDesktopsShown: Int
 
     var onChange: (() -> Void)?
 
     init(
         runningAppsService: RunningAppsService = RunningAppsService(),
         rulesStore: RulesStore = RulesStore(),
+        settingsStore: SettingsStore = SettingsStore(),
         spaceSwitcher: SpaceSwitcher = SpaceSwitcher(),
         appLauncher: AppLauncher = AppLauncher(),
         launchObserver: LaunchObserver = LaunchObserver(),
@@ -25,11 +28,13 @@ final class AppState {
     ) {
         self.runningAppsService = runningAppsService
         self.rulesStore = rulesStore
+        self.settingsStore = settingsStore
         self.spaceSwitcher = spaceSwitcher
         self.appLauncher = appLauncher
         self.launchObserver = launchObserver
         self.permissionsService = permissionsService
         self.logger = logger
+        self.maxDesktopsShown = settingsStore.loadMaxDesktopsShown()
     }
 
     func start() {
@@ -106,5 +111,11 @@ final class AppState {
 
     func isAccessibilityTrusted() -> Bool {
         permissionsService.isAccessibilityTrusted(prompt: false)
+    }
+
+    func setMaxDesktopsShown(_ count: Int) {
+        maxDesktopsShown = min(max(count, 1), 9)
+        settingsStore.saveMaxDesktopsShown(maxDesktopsShown)
+        onChange?()
     }
 }
