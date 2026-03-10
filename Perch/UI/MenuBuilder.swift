@@ -33,12 +33,23 @@ final class MenuBuilder {
         target: MenuActionHandling
     ) -> NSMenu {
         let menu = NSMenu()
+        let rulesByBundleID = Dictionary(uniqueKeysWithValues: rules.map { ($0.bundleID, $0) })
 
-        menu.addItem(sectionHeader("Running Apps"))
+        menu.addItem(sectionHeader("Unassigned Apps"))
         if runningApps.isEmpty {
             menu.addItem(disabledItem("No regular apps running"))
         } else {
-            runningApps.forEach { app in
+            let sortedApps = runningApps.sorted {
+                $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
+            }
+            let unassignedApps = sortedApps.filter { rulesByBundleID[$0.bundleID] == nil }
+            let assignedApps: [(app: RunningAppInfo, desktop: Int)] = sortedApps.compactMap { app in
+                guard let rule = rulesByBundleID[app.bundleID] else { return nil }
+                return (app: app, desktop: rule.desktopNumber)
+            }
+            let assignedAppsByDesktop = Dictionary(grouping: assignedApps) { $0.desktop }
+
+            unassignedApps.forEach { app in
                 menu.addItem(
                     runningAppItem(
                         app,
@@ -48,6 +59,33 @@ final class MenuBuilder {
                     )
                 )
             }
+
+            let assignedDesktops = assignedAppsByDesktop.keys.sorted()
+            if !unassignedApps.isEmpty && !assignedDesktops.isEmpty {
+                menu.addItem(.separator())
+            }
+
+            assignedDesktops.forEach { desktop in
+                let item = NSMenuItem(title: "Assigned to Desktop \(desktop)", action: nil, keyEquivalent: "")
+                let submenu = NSMenu(title: "Desktop \(desktop)")
+
+                assignedAppsByDesktop[desktop]?
+                    .map { $0.app }
+                    .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
+                    .forEach { app in
+                        submenu.addItem(
+                            runningAppItem(
+                                app,
+                                rules: rules,
+                                maxDesktopAssignments: maxDesktopAssignments,
+                                target: target
+                            )
+                        )
+                    }
+
+                item.submenu = submenu
+                menu.addItem(item)
+            }
         }
 
         menu.addItem(.separator())
@@ -56,10 +94,26 @@ final class MenuBuilder {
             menu.addItem(disabledItem("No saved assignments"))
         } else {
             let runningBundleIDs = Set(runningApps.map(\.bundleID))
-            rules.sorted {
-                $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
-            }.forEach { rule in
-                menu.addItem(savedRuleItem(rule, isRunning: runningBundleIDs.contains(rule.bundleID), target: target))
+            let rulesByDesktop = Dictionary(grouping: rules) { $0.desktopNumber }
+
+            rulesByDesktop.keys.sorted().forEach { desktop in
+                let item = NSMenuItem(title: "Desktop \(desktop)", action: nil, keyEquivalent: "")
+                let submenu = NSMenu(title: "Desktop \(desktop)")
+
+                rulesByDesktop[desktop]?
+                    .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
+                    .forEach { rule in
+                        submenu.addItem(
+                            savedRuleItem(
+                                rule,
+                                isRunning: runningBundleIDs.contains(rule.bundleID),
+                                target: target
+                            )
+                        )
+                    }
+
+                item.submenu = submenu
+                menu.addItem(item)
             }
         }
 
