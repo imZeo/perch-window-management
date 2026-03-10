@@ -25,6 +25,8 @@ final class MenuCommandBox: NSObject {
 }
 
 final class MenuBuilder {
+    private let menuAppIconSize = NSSize(width: 24, height: 24)
+
     func makeMenu(
         runningApps: [RunningAppInfo],
         rules: [AppRule],
@@ -144,7 +146,7 @@ final class MenuBuilder {
         target: MenuActionHandling
     ) -> NSMenuItem {
         let item = NSMenuItem(title: app.displayName, action: nil, keyEquivalent: "")
-        item.image = app.icon
+        item.image = resizedMenuIcon(from: app.icon)
 
         let submenu = NSMenu(title: app.displayName)
         let assignedDesktop = rules.first(where: { $0.bundleID == app.bundleID })?.desktopNumber
@@ -177,6 +179,14 @@ final class MenuBuilder {
 
         item.submenu = submenu
         return item
+    }
+
+    private func resizedMenuIcon(from icon: NSImage?) -> NSImage? {
+        guard let icon else { return nil }
+
+        let resizedIcon = icon.copy() as? NSImage
+        resizedIcon?.size = menuAppIconSize
+        return resizedIcon
     }
 
     private func sectionHeader(_ title: String) -> NSMenuItem {
