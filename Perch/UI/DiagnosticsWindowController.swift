@@ -8,6 +8,7 @@ final class DiagnosticsWindowController: NSWindowController {
         formatter.dateFormat = "HH:mm:ss"
         return formatter
     }()
+    private var updateScheduled = false
 
     init(diagnosticsStore: DiagnosticsStore = .shared) {
         self.diagnosticsStore = diagnosticsStore
@@ -25,7 +26,7 @@ final class DiagnosticsWindowController: NSWindowController {
 
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(updateContents),
+            selector: #selector(scheduleUpdateContents),
             name: DiagnosticsStore.didChangeNotification,
             object: diagnosticsStore
         )
@@ -41,10 +42,10 @@ final class DiagnosticsWindowController: NSWindowController {
     }
 
     func show() {
-        updateContents()
         showWindow(nil)
         window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+        scheduleUpdateContents()
     }
 
     private func configureWindow() {
@@ -102,5 +103,17 @@ final class DiagnosticsWindowController: NSWindowController {
         }
 
         textView.string = lines.isEmpty ? "No diagnostics yet." : lines.joined(separator: "\n")
+    }
+
+    @objc
+    private func scheduleUpdateContents() {
+        guard !updateScheduled else { return }
+
+        updateScheduled = true
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.updateScheduled = false
+            self.updateContents()
+        }
     }
 }

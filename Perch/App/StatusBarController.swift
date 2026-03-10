@@ -7,6 +7,7 @@ final class StatusBarController: NSObject {
     private let diagnosticsWindowController = DiagnosticsWindowController()
 
     private var statusItem: NSStatusItem?
+    private var rulesWindowRefreshScheduled = false
 
     init(appState: AppState) {
         self.appState = appState
@@ -73,7 +74,18 @@ final class StatusBarController: NSObject {
             maxDesktopAssignments: appState.maxDesktopsShown,
             target: self
         )
-        rulesWindowController.update(snapshot: settingsSnapshot())
+        scheduleRulesWindowRefresh()
+    }
+
+    private func scheduleRulesWindowRefresh() {
+        guard !rulesWindowRefreshScheduled else { return }
+
+        rulesWindowRefreshScheduled = true
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.rulesWindowRefreshScheduled = false
+            self.rulesWindowController.update(snapshot: self.settingsSnapshot())
+        }
     }
 
     private func settingsSnapshot() -> SettingsSnapshot {

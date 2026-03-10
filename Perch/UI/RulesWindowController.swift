@@ -32,6 +32,8 @@ final class RulesWindowController: NSWindowController {
     private let removeButton = NSButton(title: "Remove Rule", target: nil, action: nil)
 
     private var rules: [AppRule] = []
+    private var pendingSnapshot: SettingsSnapshot?
+    private var applyScheduled = false
 
     init() {
         let window = NSWindow(
@@ -52,7 +54,7 @@ final class RulesWindowController: NSWindowController {
     }
 
     func show(snapshot: SettingsSnapshot) {
-        apply(snapshot: snapshot)
+        scheduleApply(snapshot)
         showWindow(nil)
         window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
@@ -60,7 +62,22 @@ final class RulesWindowController: NSWindowController {
 
     func update(snapshot: SettingsSnapshot) {
         guard window?.isVisible == true else { return }
-        apply(snapshot: snapshot)
+        scheduleApply(snapshot)
+    }
+
+    private func scheduleApply(_ snapshot: SettingsSnapshot) {
+        pendingSnapshot = snapshot
+        guard !applyScheduled else { return }
+
+        applyScheduled = true
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.applyScheduled = false
+
+            guard let snapshot = self.pendingSnapshot else { return }
+            self.pendingSnapshot = nil
+            self.apply(snapshot: snapshot)
+        }
     }
 
     private func configureWindow() {
