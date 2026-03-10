@@ -1,0 +1,229 @@
+{
+  "" : {
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/Perch-primary.dia",
+    "emit-module-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/Perch-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/Perch-primary-emit-module.dia",
+    "pch" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/Perch-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/Perch-primary.swiftdeps"
+  },
+  "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/App/AppDelegate.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppDelegate.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppDelegate.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppDelegate.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppDelegate.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppDelegate.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppDelegate.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppDelegate.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppDelegate~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/App/AppState.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppState.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppState.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppState.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppState.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppState.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppState.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppState.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppState~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/App/SpaceLauncherApp.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SpaceLauncherApp.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SpaceLauncherApp.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SpaceLauncherApp.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/SpaceLauncherApp.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SpaceLauncherApp.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SpaceLauncherApp.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SpaceLauncherApp.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SpaceLauncherApp~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/App/StatusBarController.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/StatusBarController.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/StatusBarController.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/StatusBarController.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/StatusBarController.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/StatusBarController.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/StatusBarController.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/StatusBarController.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/StatusBarController~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/Models/AppRule.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppRule.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppRule.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppRule.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppRule.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppRule.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppRule.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppRule.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppRule~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/Models/DesktopShortcutModifier.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DesktopShortcutModifier.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DesktopShortcutModifier.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DesktopShortcutModifier.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/DesktopShortcutModifier.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DesktopShortcutModifier.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DesktopShortcutModifier.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DesktopShortcutModifier.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DesktopShortcutModifier~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/Models/DiagnosticsEntry.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsEntry.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsEntry.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsEntry.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsEntry.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsEntry.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsEntry.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsEntry.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsEntry~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/Models/RunningAppInfo.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RunningAppInfo.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RunningAppInfo.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RunningAppInfo.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/RunningAppInfo.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RunningAppInfo.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RunningAppInfo.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RunningAppInfo.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RunningAppInfo~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/Services/AppLauncher.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppLauncher.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppLauncher.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppLauncher.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppLauncher.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppLauncher.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppLauncher.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppLauncher.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/AppLauncher~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/Services/DiagnosticsStore.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsStore.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsStore.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsStore.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsStore.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsStore.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsStore.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsStore.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsStore~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/Services/LaunchObserver.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchObserver.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchObserver.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchObserver.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchObserver.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchObserver.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchObserver.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchObserver.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchObserver~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/Services/PermissionsService.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/PermissionsService.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/PermissionsService.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/PermissionsService.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/PermissionsService.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/PermissionsService.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/PermissionsService.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/PermissionsService.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/PermissionsService~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/Services/RulesStore.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RulesStore.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RulesStore.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RulesStore.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/RulesStore.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RulesStore.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RulesStore.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RulesStore.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RulesStore~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/Services/RunningAppsService.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RunningAppsService.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RunningAppsService.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RunningAppsService.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/RunningAppsService.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RunningAppsService.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RunningAppsService.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RunningAppsService.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RunningAppsService~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/Services/SettingsStore.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SettingsStore.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SettingsStore.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SettingsStore.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/SettingsStore.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SettingsStore.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SettingsStore.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SettingsStore.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SettingsStore~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/Services/SpaceSwitcher.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SpaceSwitcher.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SpaceSwitcher.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SpaceSwitcher.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/SpaceSwitcher.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SpaceSwitcher.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SpaceSwitcher.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SpaceSwitcher.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/SpaceSwitcher~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/UI/DiagnosticsWindowController.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsWindowController.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsWindowController.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsWindowController.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsWindowController.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsWindowController.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsWindowController.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsWindowController.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsWindowController~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/UI/MenuBuilder.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/MenuBuilder.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/MenuBuilder.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/MenuBuilder.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/MenuBuilder.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/MenuBuilder.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/MenuBuilder.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/MenuBuilder.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/MenuBuilder~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/UI/RulesWindowController.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RulesWindowController.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RulesWindowController.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RulesWindowController.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/RulesWindowController.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RulesWindowController.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RulesWindowController.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RulesWindowController.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/RulesWindowController~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/Utilities/BundleIDResolver.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/BundleIDResolver.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/BundleIDResolver.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/BundleIDResolver.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/BundleIDResolver.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/BundleIDResolver.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/BundleIDResolver.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/BundleIDResolver.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/BundleIDResolver~partial.swiftmodule"
+  },
+  "/Users/zeo/Developer/Perch/Perch/Utilities/Logger.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/Logger.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/Logger.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/Logger.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/Logger.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/Logger.bc",
+    "object" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/Logger.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/Logger.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.derived-data/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/Logger~partial.swiftmodule"
+  }
+}

@@ -49,6 +49,8 @@ final class DiagnosticsWindowController: NSWindowController {
     }
 
     private func configureWindow() {
+        window?.delegate = self
+
         let contentView = NSView(frame: NSRect(x: 0, y: 0, width: 760, height: 420))
         window?.contentView = contentView
 
@@ -73,7 +75,11 @@ final class DiagnosticsWindowController: NSWindowController {
 
         textView.isEditable = false
         textView.font = .monospacedSystemFont(ofSize: 12, weight: .regular)
-        textView.autoresizingMask = [.width, .height]
+        textView.isVerticallyResizable = true
+        textView.isHorizontallyResizable = false
+        textView.autoresizingMask = [.width]
+        textView.textContainer?.widthTracksTextView = true
+        textView.textContainer?.containerSize = NSSize(width: 0, height: CGFloat.greatestFiniteMagnitude)
         scrollView.setContentHuggingPriority(.defaultLow, for: .vertical)
         scrollView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
 
@@ -98,6 +104,11 @@ final class DiagnosticsWindowController: NSWindowController {
 
     @objc
     private func updateContents() {
+        guard window?.inLiveResize != true else {
+            scheduleUpdateContents()
+            return
+        }
+
         let lines = diagnosticsStore.entries.map { entry in
             "\(dateFormatter.string(from: entry.timestamp)) [\(entry.level.rawValue)] [\(entry.category)] \(entry.message)"
         }
@@ -115,5 +126,11 @@ final class DiagnosticsWindowController: NSWindowController {
             self.updateScheduled = false
             self.updateContents()
         }
+    }
+}
+
+extension DiagnosticsWindowController: NSWindowDelegate {
+    func windowDidEndLiveResize(_ notification: Notification) {
+        scheduleUpdateContents()
     }
 }

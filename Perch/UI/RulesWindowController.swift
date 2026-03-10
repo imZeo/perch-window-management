@@ -73,14 +73,13 @@ final class RulesWindowController: NSWindowController {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             self.applyScheduled = false
-
-            guard let snapshot = self.pendingSnapshot else { return }
-            self.pendingSnapshot = nil
-            self.apply(snapshot: snapshot)
+            self.applyPendingSnapshotIfPossible()
         }
     }
 
     private func configureWindow() {
+        window?.delegate = self
+
         let contentView = NSView(frame: NSRect(x: 0, y: 0, width: 760, height: 560))
         window?.contentView = contentView
 
@@ -240,6 +239,21 @@ final class RulesWindowController: NSWindowController {
         updateButtons()
     }
 
+    private func shouldDeferWindowUpdates() -> Bool {
+        window?.inLiveResize == true
+    }
+
+    private func applyPendingSnapshotIfPossible() {
+        guard let snapshot = pendingSnapshot else { return }
+        guard !shouldDeferWindowUpdates() else {
+            scheduleApply(snapshot)
+            return
+        }
+
+        pendingSnapshot = nil
+        apply(snapshot: snapshot)
+    }
+
     private func row(label: NSTextField, control: NSView) -> NSStackView {
         row(label: label, controls: [control])
     }
@@ -344,6 +358,12 @@ final class RulesWindowController: NSWindowController {
     @objc
     private func showDiagnostics() {
         onShowDiagnostics?()
+    }
+}
+
+extension RulesWindowController: NSWindowDelegate {
+    func windowDidEndLiveResize(_ notification: Notification) {
+        applyPendingSnapshotIfPossible()
     }
 }
 
