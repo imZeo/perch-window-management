@@ -17,7 +17,14 @@ final class RulesStore {
 
     func loadRules() -> [AppRule] {
         guard let data = try? Data(contentsOf: fileURL) else { return [] }
-        return (try? decoder.decode([AppRule].self, from: data)) ?? []
+        guard let decodedRules = try? decoder.decode([AppRule].self, from: data) else { return [] }
+
+        let supportedRules = decodedRules.filter { $0.assignmentTarget != .allDesktops }
+        if supportedRules.count != decodedRules.count {
+            saveRules(supportedRules)
+        }
+
+        return supportedRules
     }
 
     func saveRules(_ rules: [AppRule]) {

@@ -26,7 +26,6 @@ final class RulesWindowController: NSWindowController {
     private let launchDelayValueLabel = NSTextField(labelWithString: "")
     private let launchDelayStepper = NSStepper()
     private let watchLaunchesCheckbox = NSButton(checkboxWithTitle: "Watch launches and reopen assigned apps", target: nil, action: nil)
-    private let allDesktopsNoticeLabel = NSTextField(labelWithString: "")
     private let tableView = NSTableView()
     private let emptyStateLabel = NSTextField(labelWithString: "No saved assignments yet.")
     private let openButton = NSButton(title: "Launch on Assigned Desktop", target: nil, action: nil)
@@ -176,13 +175,8 @@ final class RulesWindowController: NSWindowController {
         actionsRow.orientation = .horizontal
         actionsRow.alignment = .centerY
         actionsRow.spacing = 8
-        allDesktopsNoticeLabel.stringValue = "All Desktops is experimental. Perch saves the rule locally, but Dock automation may fail on some macOS setups."
-        allDesktopsNoticeLabel.font = .systemFont(ofSize: 12)
-        allDesktopsNoticeLabel.textColor = .secondaryLabelColor
-        allDesktopsNoticeLabel.lineBreakMode = .byWordWrapping
-        allDesktopsNoticeLabel.maximumNumberOfLines = 0
 
-        let stack = NSStackView(views: [title, maxDesktopsRow, shortcutRow, shortcutHintLabel, launchDelayRow, watchLaunchesCheckbox, allDesktopsNoticeLabel, actionsRow])
+        let stack = NSStackView(views: [title, maxDesktopsRow, shortcutRow, shortcutHintLabel, launchDelayRow, watchLaunchesCheckbox, actionsRow])
         stack.orientation = .vertical
         stack.alignment = .width
         stack.spacing = 10
@@ -402,7 +396,7 @@ extension RulesWindowController: NSTableViewDataSource, NSTableViewDelegate {
         case "bundleID":
             value = item.bundleID
         case "desktop":
-            value = item.assignmentTarget == .allDesktops ? "All Desktops (Experimental)" : item.assignmentDisplayName
+            value = item.assignmentDisplayName
         default:
             value = ""
         }

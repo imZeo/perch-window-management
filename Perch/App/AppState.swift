@@ -5,7 +5,6 @@ final class AppState {
     private let rulesStore: RulesStore
     private let settingsStore: SettingsStore
     private let spaceSwitcher: SpaceSwitcher
-    private let dockAssignmentService: DockAssignmentService
     private let appLauncher: AppLauncher
     private let launchObserver: LaunchObserver
     private let permissionsService: PermissionsService
@@ -27,7 +26,6 @@ final class AppState {
         rulesStore: RulesStore = RulesStore(),
         settingsStore: SettingsStore = SettingsStore(),
         spaceSwitcher: SpaceSwitcher = SpaceSwitcher(),
-        dockAssignmentService: DockAssignmentService = DockAssignmentService(),
         appLauncher: AppLauncher = AppLauncher(),
         launchObserver: LaunchObserver = LaunchObserver(),
         permissionsService: PermissionsService = PermissionsService(),
@@ -37,7 +35,6 @@ final class AppState {
         self.rulesStore = rulesStore
         self.settingsStore = settingsStore
         self.spaceSwitcher = spaceSwitcher
-        self.dockAssignmentService = dockAssignmentService
         self.appLauncher = appLauncher
         self.launchObserver = launchObserver
         self.permissionsService = permissionsService
@@ -74,53 +71,19 @@ final class AppState {
     }
 
     func assign(_ assignmentTarget: AssignmentTarget, to app: RunningAppInfo) {
-        let existingTarget = rule(for: app.bundleID)?.assignmentTarget
-        let needsNativeAssignmentClear = existingTarget == .allDesktops && assignmentTarget != .allDesktops
-        let needsNativeAssignmentApply = assignmentTarget == .allDesktops
-        let accessibilityTrusted = permissionsService.isAccessibilityTrusted(prompt: false)
-
-        if needsNativeAssignmentClear && !accessibilityTrusted {
-            logger.error("Accessibility permission is required to manage native app assignments")
-            requestAccessibilityIfNeeded()
+        guard case .desktop = assignmentTarget else {
+            logger.error("All Desktops assignments are no longer supported")
+            reload()
             return
-        }
-
-        if needsNativeAssignmentClear,
-           !dockAssignmentService.apply(.none, bundleID: app.bundleID, displayName: app.displayName) {
-            logger.error("Could not clear native All Desktops assignment for \(app.bundleID); saving the new rule anyway")
         }
 
         let rule = AppRule(bundleID: app.bundleID, displayName: app.displayName, assignmentTarget: assignmentTarget)
         rulesStore.upsert(rule)
         logger.info("Assigned \(app.bundleID) to \(rule.assignmentDisplayName)")
-
-        if needsNativeAssignmentApply {
-            if !accessibilityTrusted {
-                logger.error("Saved All Desktops rule for \(app.bundleID), but Accessibility permission is still required to apply it natively")
-                requestAccessibilityIfNeeded()
-            } else if !dockAssignmentService.apply(.allDesktops, bundleID: app.bundleID, displayName: app.displayName) {
-                logger.error("Saved All Desktops rule for \(app.bundleID), but native Dock assignment did not apply")
-            }
-        }
-
         reload()
     }
 
     func clearAssignment(for bundleID: String) {
-        guard let existingRule = rule(for: bundleID) else { return }
-
-        if existingRule.assignmentTarget == .allDesktops {
-            guard permissionsService.isAccessibilityTrusted(prompt: false) else {
-                logger.error("Accessibility permission is required to clear native app assignments")
-                requestAccessibilityIfNeeded()
-                return
-            }
-
-            if !dockAssignmentService.apply(.none, bundleID: bundleID, displayName: existingRule.displayName) {
-                logger.error("Could not clear native All Desktops assignment for \(bundleID); removing the saved rule anyway")
-            }
-        }
-
         rulesStore.removeRule(for: bundleID)
         logger.info("Cleared assignment for \(bundleID)")
         reload()
@@ -152,7 +115,8 @@ final class AppState {
             logger.info("Opening \(bundleID) on desktop \(desktopNumber) with \(shortcutModifier.title)")
             spaceSwitcher.switchToDesktop(desktopNumber, modifier: shortcutModifier)
         case .allDesktops:
-            logger.info("Opening \(bundleID) with native All Desktops assignment")
+            logger.error("Ignoring unsupported All Desktops rule for \(bundleID)")
+            return
         }
 
         let delay = DispatchTime.now() + .milliseconds(launchDelayMilliseconds)
@@ -223,7 +187,7 @@ final class AppState {
             logger.info("Watch launches matched \(bundleID), reopening on \(rule.assignmentDisplayName)")
             open(bundleID: bundleID, using: rule.assignmentTarget)
         case .allDesktops:
-            logger.info("Watch launches matched \(bundleID), native All Desktops assignment will handle placement")
+            logger.error("Ignoring unsupported All Desktops rule for \(bundleID)")
         }
     }
 

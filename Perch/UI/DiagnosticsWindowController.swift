@@ -9,6 +9,7 @@ final class DiagnosticsWindowController: NSWindowController {
         return formatter
     }()
     private var updateScheduled = false
+    private var hasPositionedWindow = false
 
     init(diagnosticsStore: DiagnosticsStore = .shared) {
         self.diagnosticsStore = diagnosticsStore
@@ -42,6 +43,11 @@ final class DiagnosticsWindowController: NSWindowController {
     }
 
     func show() {
+        if !hasPositionedWindow {
+            window?.center()
+            hasPositionedWindow = true
+        }
+
         showWindow(nil)
         window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
@@ -57,10 +63,18 @@ final class DiagnosticsWindowController: NSWindowController {
         let infoLabel = NSTextField(labelWithString: "Recent Perch activity")
         infoLabel.font = .systemFont(ofSize: 14, weight: .semibold)
 
+        let copyButton = NSButton(title: "Copy All", target: self, action: #selector(copyLogs))
+        copyButton.bezelStyle = .rounded
+
         let clearButton = NSButton(title: "Clear", target: self, action: #selector(clearLogs))
         clearButton.bezelStyle = .rounded
 
-        let headerRow = NSStackView(views: [infoLabel, clearButton])
+        let buttonsRow = NSStackView(views: [copyButton, clearButton])
+        buttonsRow.orientation = .horizontal
+        buttonsRow.alignment = .centerY
+        buttonsRow.spacing = 8
+
+        let headerRow = NSStackView(views: [infoLabel, buttonsRow])
         headerRow.translatesAutoresizingMaskIntoConstraints = false
         headerRow.orientation = .horizontal
         headerRow.alignment = .centerY
@@ -95,11 +109,20 @@ final class DiagnosticsWindowController: NSWindowController {
             scrollView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             scrollView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
         ])
+
+        window?.center()
     }
 
     @objc
     private func clearLogs() {
         diagnosticsStore.clear()
+    }
+
+    @objc
+    private func copyLogs() {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(renderedLogs(), forType: .string)
     }
 
     @objc
@@ -109,11 +132,7 @@ final class DiagnosticsWindowController: NSWindowController {
             return
         }
 
-        let lines = diagnosticsStore.entries.map { entry in
-            "\(dateFormatter.string(from: entry.timestamp)) [\(entry.level.rawValue)] [\(entry.category)] \(entry.message)"
-        }
-
-        textView.string = lines.isEmpty ? "No diagnostics yet." : lines.joined(separator: "\n")
+        textView.string = renderedLogs()
     }
 
     @objc
@@ -126,6 +145,14 @@ final class DiagnosticsWindowController: NSWindowController {
             self.updateScheduled = false
             self.updateContents()
         }
+    }
+
+    private func renderedLogs() -> String {
+        let lines = diagnosticsStore.entries.map { entry in
+            "\(dateFormatter.string(from: entry.timestamp)) [\(entry.level.rawValue)] [\(entry.category)] \(entry.message)"
+        }
+
+        return lines.isEmpty ? "No diagnostics yet." : lines.joined(separator: "\n")
     }
 }
 
