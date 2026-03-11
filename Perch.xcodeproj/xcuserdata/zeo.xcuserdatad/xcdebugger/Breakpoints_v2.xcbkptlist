@@ -21,21 +21,12 @@
          BreakpointExtensionID = "Xcode.Breakpoint.SymbolicBreakpoint">
          <BreakpointContent
             uuid = "E09B07DA-284C-4149-B1F7-4E6414B6E0A0"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             symbolName = "_NSDetectedLayoutRecursion"
             moduleName = "">
             <Locations>
-               <Location
-                  uuid = "E09B07DA-284C-4149-B1F7-4E6414B6E0A0 - b0b77cd0d128b27b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "_NSDetectedLayoutRecursion"
-                  moduleName = "AppKit"
-                  usesParentBreakpointCondition = "Yes">
-               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>

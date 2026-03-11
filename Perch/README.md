@@ -9,6 +9,7 @@ Perch is a macOS menu bar app for assigning apps to Spaces and reopening or laun
 - Saves rules locally in Application Support
 - Reopens running apps on their assigned desktop
 - Launches saved apps on their assigned desktop even when they are not running
+- Can attempt the Dock's native `Assign To -> All Desktops` option for running apps
 - Optionally watches app launches and reapplies assigned desktops automatically
 - Provides an in-app diagnostics panel for recent Perch activity
 
@@ -38,17 +39,21 @@ Perch currently supports these persisted settings:
 
 Perch switches desktops by posting a synthetic modifier-plus-number keyboard shortcut, then waits for the configured launch delay before activating or launching the target app.
 
+`All Desktops` assignments are experimental. They use Dock UI scripting through Accessibility instead of keyboard shortcuts.
+
 That means:
 
 - your Mission Control shortcuts for `Switch to Desktop 1...9` must exist
 - the configured shortcut assumption in Perch must match your actual macOS shortcut setup
 - Perch needs Accessibility permission to post the shortcut events
+- Perch may fail to apply `All Desktops` if Dock menu automation is not exposed consistently on your macOS setup
 
 ## Diagnostics
 
 Perch records a rolling in-app diagnostics log for:
 
 - rule changes
+- native Dock assignment attempts
 - launch and activation attempts
 - desktop switching attempts
 - settings updates
@@ -72,7 +77,7 @@ Perch intentionally does not do these things yet:
 
 - detect the real number of Spaces dynamically via private APIs
 - move windows between desktops
-- perform deep UI automation in Mission Control
+- perform deep UI automation in Mission Control beyond the Dock `Assign To -> All Desktops` flow
 - guarantee background-only enforcement without visible focus changes
 
 ## Notes

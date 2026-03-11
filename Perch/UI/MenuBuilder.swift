@@ -7,7 +7,7 @@ protocol MenuActionHandling: AnyObject {
 
 enum MenuCommand {
     case openAssigned(bundleID: String)
-    case assign(bundleID: String, displayName: String, desktopNumber: Int)
+    case assign(bundleID: String, displayName: String, assignmentTarget: AssignmentTarget)
     case clear(bundleID: String)
     case refresh
     case requestAccessibility
@@ -26,6 +26,8 @@ final class MenuCommandBox: NSObject {
 
 final class MenuBuilder {
     private let menuAppIconSize = NSSize(width: 24, height: 24)
+    private let experimentalAllDesktopsTitle = "Assigned to All Desktops (Experimental)"
+    private let assignAllDesktopsTitle = "Assign to All Desktops (Experimental)"
 
     func makeMenu(
         runningApps: [RunningAppInfo],
@@ -45,11 +47,18 @@ final class MenuBuilder {
                 $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
             }
             let unassignedApps = sortedApps.filter { rulesByBundleID[$0.bundleID] == nil }
-            let assignedApps: [(app: RunningAppInfo, desktop: Int)] = sortedApps.compactMap { app in
+            let assignedApps: [(app: RunningAppInfo, target: AssignmentTarget)] = sortedApps.compactMap { app in
                 guard let rule = rulesByBundleID[app.bundleID] else { return nil }
-                return (app: app, desktop: rule.desktopNumber)
+                return (app: app, target: rule.assignmentTarget)
             }
-            let assignedAppsByDesktop = Dictionary(grouping: assignedApps) { $0.desktop }
+            let allDesktopApps = assignedApps
+                .filter { $0.target == .allDesktops }
+                .map(\.app)
+                .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
+            let assignedAppsByDesktop = Dictionary(grouping: assignedApps.compactMap { entry -> (app: RunningAppInfo, desktop: Int)? in
+                guard let desktop = entry.target.desktopNumber else { return nil }
+                return (entry.app, desktop)
+            }) { $0.desktop }
 
             unassignedApps.forEach { app in
                 menu.addItem(
@@ -63,7 +72,30 @@ final class MenuBuilder {
             }
 
             let assignedDesktops = assignedAppsByDesktop.keys.sorted()
-            if !unassignedApps.isEmpty && !assignedDesktops.isEmpty {
+            if !unassignedApps.isEmpty && (!allDesktopApps.isEmpty || !assignedDesktops.isEmpty) {
+                menu.addItem(.separator())
+            }
+
+            if !allDesktopApps.isEmpty {
+                let item = NSMenuItem(title: experimentalAllDesktopsTitle, action: nil, keyEquivalent: "")
+                let submenu = NSMenu(title: experimentalAllDesktopsTitle)
+
+                allDesktopApps.forEach { app in
+                    submenu.addItem(
+                        runningAppItem(
+                            app,
+                            rules: rules,
+                            maxDesktopAssignments: maxDesktopAssignments,
+                            target: target
+                        )
+                    )
+                }
+
+                item.submenu = submenu
+                menu.addItem(item)
+            }
+
+            if !allDesktopApps.isEmpty && !assignedDesktops.isEmpty {
                 menu.addItem(.separator())
             }
 
@@ -96,7 +128,35 @@ final class MenuBuilder {
             menu.addItem(disabledItem("No saved assignments"))
         } else {
             let runningBundleIDs = Set(runningApps.map(\.bundleID))
-            let rulesByDesktop = Dictionary(grouping: rules) { $0.desktopNumber }
+            let allDesktopRules = rules
+                .filter { $0.assignmentTarget == .allDesktops }
+                .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
+            let rulesByDesktop = Dictionary(grouping: rules.compactMap { rule -> AppRule? in
+                guard rule.desktopNumber != nil else { return nil }
+                return rule
+            }) { $0.desktopNumber ?? 0 }
+
+            if !allDesktopRules.isEmpty {
+                let item = NSMenuItem(title: experimentalAllDesktopsTitle, action: nil, keyEquivalent: "")
+                let submenu = NSMenu(title: experimentalAllDesktopsTitle)
+
+                allDesktopRules.forEach { rule in
+                    submenu.addItem(
+                        savedRuleItem(
+                            rule,
+                            isRunning: runningBundleIDs.contains(rule.bundleID),
+                            target: target
+                        )
+                    )
+                }
+
+                item.submenu = submenu
+                menu.addItem(item)
+            }
+
+            if !allDesktopRules.isEmpty && !rulesByDesktop.isEmpty {
+                menu.addItem(.separator())
+            }
 
             rulesByDesktop.keys.sorted().forEach { desktop in
                 let item = NSMenuItem(title: "Desktop \(desktop)", action: nil, keyEquivalent: "")
@@ -149,30 +209,43 @@ final class MenuBuilder {
         item.image = resizedMenuIcon(from: app.icon)
 
         let submenu = NSMenu(title: app.displayName)
-        let assignedDesktop = rules.first(where: { $0.bundleID == app.bundleID })?.desktopNumber
+        let assignedTarget = rules.first(where: { $0.bundleID == app.bundleID })?.assignmentTarget
 
-        if let assignedDesktop {
+        if let assignedTarget {
             submenu.addItem(actionItem(
-                "Open on Desktop \(assignedDesktop)",
+                openTitle(for: assignedTarget),
                 command: .openAssigned(bundleID: app.bundleID),
                 target: target
             ))
         } else {
-            submenu.addItem(disabledItem("No desktop assigned"))
+            submenu.addItem(disabledItem("No assignment saved"))
         }
 
         submenu.addItem(.separator())
 
-        let desktopLimit = max(maxDesktopAssignments, assignedDesktop ?? 1)
+        let desktopLimit = max(maxDesktopAssignments, assignedTarget?.desktopNumber ?? 1)
         for desktop in 1...desktopLimit {
             let assignmentItem = actionItem(
                 "Assign to Desktop \(desktop)",
-                command: .assign(bundleID: app.bundleID, displayName: app.displayName, desktopNumber: desktop),
+                command: .assign(
+                    bundleID: app.bundleID,
+                    displayName: app.displayName,
+                    assignmentTarget: .desktop(desktop)
+                ),
                 target: target
             )
-            assignmentItem.state = assignedDesktop == desktop ? NSControl.StateValue.on : NSControl.StateValue.off
+            assignmentItem.state = assignedTarget == .desktop(desktop) ? NSControl.StateValue.on : NSControl.StateValue.off
             submenu.addItem(assignmentItem)
         }
+
+        submenu.addItem(.separator())
+        let allDesktopsItem = actionItem(
+            assignAllDesktopsTitle,
+            command: .assign(bundleID: app.bundleID, displayName: app.displayName, assignmentTarget: .allDesktops),
+            target: target
+        )
+        allDesktopsItem.state = assignedTarget == .allDesktops ? .on : .off
+        submenu.addItem(allDesktopsItem)
 
         submenu.addItem(.separator())
         submenu.addItem(actionItem("Clear Assignment", command: .clear(bundleID: app.bundleID), target: target))
@@ -200,12 +273,12 @@ final class MenuBuilder {
         isRunning: Bool,
         target: MenuActionHandling
     ) -> NSMenuItem {
-        let item = NSMenuItem(title: "\(rule.displayName) -> Desktop \(rule.desktopNumber)", action: nil, keyEquivalent: "")
+        let item = NSMenuItem(title: "\(rule.displayName) -> \(rule.assignmentDisplayName)", action: nil, keyEquivalent: "")
 
         let submenu = NSMenu(title: rule.displayName)
         submenu.addItem(
             actionItem(
-                isRunning ? "Open on Assigned Desktop" : "Launch on Assigned Desktop",
+                isRunning ? openTitle(for: rule.assignmentTarget) : launchTitle(for: rule.assignmentTarget),
                 command: .openAssigned(bundleID: rule.bundleID),
                 target: target
             )
@@ -232,5 +305,23 @@ final class MenuBuilder {
         item.target = target
         item.representedObject = MenuCommandBox(command: command)
         return item
+    }
+
+    private func openTitle(for assignmentTarget: AssignmentTarget) -> String {
+        switch assignmentTarget {
+        case .desktop(let desktopNumber):
+            return "Open on Desktop \(desktopNumber)"
+        case .allDesktops:
+            return "Open with All Desktops Rule"
+        }
+    }
+
+    private func launchTitle(for assignmentTarget: AssignmentTarget) -> String {
+        switch assignmentTarget {
+        case .desktop(let desktopNumber):
+            return "Launch on Desktop \(desktopNumber)"
+        case .allDesktops:
+            return "Launch with All Desktops Rule"
+        }
     }
 }

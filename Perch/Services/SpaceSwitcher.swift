@@ -34,3 +34,76 @@ final class SpaceSwitcher {
         }
     }
 }
+
+final class DockAssignmentService {
+    enum NativeAssignment {
+        case allDesktops
+        case none
+
+        var labels: [String] {
+            switch self {
+            case .allDesktops:
+                return ["All Desktops", "All Spaces"]
+            case .none:
+                return ["None"]
+            }
+        }
+
+        var title: String {
+            switch self {
+            case .allDesktops:
+                return "All Desktops"
+            case .none:
+                return "None"
+            }
+        }
+    }
+
+    private let logger = AppLogger(category: "DockAssignmentService")
+
+    func apply(_ assignment: NativeAssignment, bundleID: String, displayName: String) -> Bool {
+        var lastErrorDescription = "Unknown error"
+
+        for label in assignment.labels {
+            var error: NSDictionary?
+            guard let script = NSAppleScript(source: scriptSource(displayName: displayName, assignmentLabel: label)) else {
+                lastErrorDescription = "Could not create AppleScript"
+                continue
+            }
+
+            script.executeAndReturnError(&error)
+
+            if error == nil {
+                logger.info("Applied native \(assignment.title) assignment to \(bundleID)")
+                return true
+            }
+
+            lastErrorDescription = error?.description ?? lastErrorDescription
+        }
+
+        logger.error("Failed to apply native \(assignment.title) assignment to \(bundleID): \(lastErrorDescription)")
+        return false
+    }
+
+    private func scriptSource(displayName: String, assignmentLabel: String) -> String {
+        let escapedDisplayName = escapeAppleScript(displayName)
+        let escapedAssignmentLabel = escapeAppleScript(assignmentLabel)
+
+        return """
+        tell application "System Events"
+            tell process "Dock"
+                set appTile to first UI element of list 1 whose name is "\(escapedDisplayName)"
+                perform action "AXShowMenu" of appTile
+                delay 0.2
+                click menu item "\(escapedAssignmentLabel)" of menu 1 of menu item "Assign To" of menu 1 of menu item "Options" of menu 1 of appTile
+            end tell
+        end tell
+        """
+    }
+
+    private func escapeAppleScript(_ value: String) -> String {
+        value
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
+    }
+}

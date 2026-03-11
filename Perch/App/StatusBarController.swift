@@ -106,7 +106,7 @@ final class StatusBarController: NSObject {
         switch commandBox.command {
         case .openAssigned(let bundleID):
             appState.openOnAssignedDesktop(bundleID: bundleID)
-        case .assign(let bundleID, let displayName, let desktopNumber):
+        case .assign(let bundleID, let displayName, let assignmentTarget):
             let app = RunningAppInfo(
                 id: bundleID,
                 bundleID: bundleID,
@@ -115,7 +115,7 @@ final class StatusBarController: NSObject {
                 isActive: false,
                 icon: nil
             )
-            appState.assignDesktop(desktopNumber, to: app)
+            appState.assign(assignmentTarget, to: app)
         case .clear(let bundleID):
             appState.clearAssignment(for: bundleID)
         case .refresh:
