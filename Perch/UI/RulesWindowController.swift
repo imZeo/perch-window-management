@@ -40,10 +40,12 @@ final class RulesWindowController: NSWindowController {
     private var rules: [AppRule] = []
     private var pendingSnapshot: SettingsSnapshot?
     private var applyScheduled = false
+    private var hasPositionedWindow = false
+    private let leftColumnWidth: CGFloat = 460
 
     init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 760, height: 560),
+            contentRect: NSRect(x: 0, y: 0, width: 1180, height: 760),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
@@ -61,6 +63,10 @@ final class RulesWindowController: NSWindowController {
 
     func show(snapshot: SettingsSnapshot) {
         scheduleApply(snapshot)
+        if !hasPositionedWindow {
+            window?.center()
+            hasPositionedWindow = true
+        }
         showWindow(nil)
         window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
@@ -84,28 +90,86 @@ final class RulesWindowController: NSWindowController {
     }
 
     private func configureWindow() {
-        window?.delegate = self
+        guard let window else { return }
 
-        let contentView = NSView(frame: NSRect(x: 0, y: 0, width: 760, height: 560))
-        window?.contentView = contentView
+        window.delegate = self
+        window.backgroundColor = NSColor(calibratedRed: 0.10, green: 0.12, blue: 0.15, alpha: 1.0)
+        window.isOpaque = false
+        window.titlebarAppearsTransparent = true
+        window.toolbarStyle = .unified
+
+        let contentView = NSVisualEffectView(frame: NSRect(x: 0, y: 0, width: 1180, height: 760))
+        contentView.material = .underWindowBackground
+        contentView.blendingMode = .behindWindow
+        contentView.state = .active
+        contentView.wantsLayer = true
+        contentView.layer?.backgroundColor = NSColor(calibratedRed: 0.13, green: 0.15, blue: 0.19, alpha: 0.84).cgColor
+        window.contentView = contentView
+
+        let titleLabel = NSTextField(labelWithString: "Perch Settings")
+        titleLabel.font = .systemFont(ofSize: 26, weight: .bold)
+        titleLabel.alignment = .left
+
+        let subtitleLabel = helperLabel("Desktop switching, behaviour, and saved apps.")
+        subtitleLabel.font = .systemFont(ofSize: 13)
+        subtitleLabel.alignment = .left
+
+        let headerStack = NSStackView(views: [titleLabel, subtitleLabel])
+        headerStack.orientation = .vertical
+        headerStack.alignment = .leading
+        headerStack.spacing = 6
 
         let permissionsSection = makePermissionsSection()
         let behaviorSection = makeBehaviorSection()
         let savedAppsSection = makeSavedAppsSection()
 
-        let layoutStack = NSStackView(views: [permissionsSection, behaviorSection, savedAppsSection])
-        layoutStack.translatesAutoresizingMaskIntoConstraints = false
-        layoutStack.orientation = .vertical
-        layoutStack.alignment = .width
-        layoutStack.spacing = 18
+        let leftColumn = NSStackView(views: [headerStack, permissionsSection, behaviorSection])
+        leftColumn.orientation = .vertical
+        leftColumn.alignment = .width
+        leftColumn.spacing = 18
+        leftColumn.translatesAutoresizingMaskIntoConstraints = false
 
-        contentView.addSubview(layoutStack)
+        permissionsSection.translatesAutoresizingMaskIntoConstraints = false
+        behaviorSection.translatesAutoresizingMaskIntoConstraints = false
+        permissionsSection.widthAnchor.constraint(equalTo: behaviorSection.widthAnchor).isActive = true
+
+        let contentRow = NSStackView(views: [leftColumn, savedAppsSection])
+        contentRow.orientation = .horizontal
+        contentRow.alignment = .top
+        contentRow.spacing = 18
+        contentRow.distribution = .fill
+        contentRow.translatesAutoresizingMaskIntoConstraints = false
+
+        let rightSpacer = NSView()
+        rightSpacer.setContentHuggingPriority(.defaultLow, for: .vertical)
+
+        let rightColumn = NSStackView(views: [rightSpacer, savedAppsSection])
+        rightColumn.orientation = .vertical
+        rightColumn.alignment = .width
+        rightColumn.spacing = 18
+        rightColumn.translatesAutoresizingMaskIntoConstraints = false
+
+        let mainSplit = NSStackView(views: [leftColumn, rightColumn])
+        mainSplit.translatesAutoresizingMaskIntoConstraints = false
+        mainSplit.orientation = .horizontal
+        mainSplit.alignment = .top
+        mainSplit.spacing = 18
+        mainSplit.distribution = .fill
+
+        contentView.addSubview(mainSplit)
 
         NSLayoutConstraint.activate([
-            layoutStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-            layoutStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            layoutStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            layoutStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
+            mainSplit.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 28),
+            mainSplit.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
+            mainSplit.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -28),
+            mainSplit.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -28),
+            leftColumn.widthAnchor.constraint(equalToConstant: leftColumnWidth),
+            headerStack.leadingAnchor.constraint(equalTo: leftColumn.leadingAnchor),
+            permissionsSection.leadingAnchor.constraint(equalTo: leftColumn.leadingAnchor),
+            behaviorSection.leadingAnchor.constraint(equalTo: leftColumn.leadingAnchor),
+            savedAppsSection.topAnchor.constraint(equalTo: permissionsSection.topAnchor),
+            savedAppsSection.bottomAnchor.constraint(equalTo: behaviorSection.bottomAnchor),
+            savedAppsSection.widthAnchor.constraint(greaterThanOrEqualToConstant: 420)
         ])
 
         updateButtons()
@@ -119,58 +183,83 @@ final class RulesWindowController: NSWindowController {
         let fittingSize = contentView.fittingSize
         guard fittingSize.width > 0, fittingSize.height > 0 else { return }
 
-        window.contentMinSize = fittingSize
-        window.setContentSize(fittingSize)
-        window.center()
+        let minimumSize = NSSize(width: max(fittingSize.width, 1080), height: max(fittingSize.height, 720))
+        window.contentMinSize = minimumSize
+        window.setContentSize(minimumSize)
     }
 
     private func makePermissionsSection() -> NSView {
-        let title = sectionLabel("Setup")
-        setupStatusLabel.font = .systemFont(ofSize: 13, weight: .semibold)
+        let title = sectionHeader("Setup", detail: "Access and test switching.")
+        let descriptionLabel = helperLabel("Access and test switching.")
+        descriptionLabel.isHidden = true
+        setupStatusLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        setupStatusLabel.maximumNumberOfLines = 0
+        configureWrappingLabel(setupStatusLabel)
 
         accessibilityStatusLabel.font = .systemFont(ofSize: 13)
         accessibilityStatusLabel.textColor = .secondaryLabelColor
+        accessibilityStatusLabel.maximumNumberOfLines = 0
+        configureWrappingLabel(accessibilityStatusLabel)
         shortcutStatusLabel.font = .systemFont(ofSize: 13)
         shortcutStatusLabel.textColor = .secondaryLabelColor
+        configureWrappingLabel(shortcutStatusLabel)
         launchDelayStatusLabel.font = .systemFont(ofSize: 13)
         launchDelayStatusLabel.textColor = .secondaryLabelColor
+        configureWrappingLabel(launchDelayStatusLabel)
 
         let requestButton = NSButton(title: "Request Access", target: self, action: #selector(requestAccessibility))
-        requestButton.bezelStyle = .rounded
+        styleButton(requestButton)
 
         testSwitchButton.target = self
         testSwitchButton.action = #selector(testDesktopSwitch)
-        testSwitchButton.bezelStyle = .rounded
+        styleButton(testSwitchButton)
 
-        let testRow = row(label: NSTextField(labelWithString: "Test desktop switch"), controls: [testDesktopPopup, testSwitchButton])
-        let helper = helperLabel("Test Switch only changes desktop so you can verify the shortcut and timing.")
+        let testLabel = NSTextField(labelWithString: "Test desktop switch")
+        testLabel.alignment = .left
+        testLabel.font = .systemFont(ofSize: 13, weight: .semibold)
+        let testRow = row(label: testLabel, controls: [testDesktopPopup, testSwitchButton])
+        let helper = helperLabel("Only switches desktop.")
 
-        let stack = NSStackView(views: [title, setupStatusLabel, accessibilityStatusLabel, shortcutStatusLabel, launchDelayStatusLabel, testRow, helper, requestButton])
+        let buttonRow = NSStackView(views: [requestButton])
+        buttonRow.orientation = .horizontal
+        buttonRow.alignment = .leading
+
+        let statusStack = NSStackView(views: [setupStatusLabel, accessibilityStatusLabel, shortcutStatusLabel, launchDelayStatusLabel])
+        statusStack.orientation = .vertical
+        statusStack.alignment = .leading
+        statusStack.spacing = 8
+
+        let stack = NSStackView(views: [title, descriptionLabel, statusStack, spacer(height: 10), testRow, helper, spacer(height: 10), buttonRow])
         stack.orientation = .vertical
-        stack.alignment = .width
+        stack.alignment = .leading
         stack.spacing = 8
-        return stack
+        return makeCard(containing: stack)
     }
 
     private func makeBehaviorSection() -> NSView {
-        let title = sectionLabel("Behavior")
+        let title = sectionHeader("Behaviour", detail: "Switching and launch handling.")
+        let descriptionLabel = helperLabel("Switching and launch handling.")
+        descriptionLabel.isHidden = true
 
         let maxDesktopsLabel = NSTextField(labelWithString: "Max desktops shown")
         maxDesktopsLabel.font = .systemFont(ofSize: 13)
+        maxDesktopsLabel.alignment = .left
         maxDesktopsPopup.addItems(withTitles: (1...9).map(String.init))
         maxDesktopsPopup.target = self
         maxDesktopsPopup.action = #selector(changeMaxDesktops)
 
         let shortcutLabel = NSTextField(labelWithString: "Shortcut assumptions")
         shortcutLabel.font = .systemFont(ofSize: 13)
+        shortcutLabel.alignment = .left
         shortcutModifierPopup.addItems(withTitles: DesktopShortcutModifier.allCases.map(\.title))
         shortcutModifierPopup.target = self
         shortcutModifierPopup.action = #selector(changeShortcutModifier)
 
-        let shortcutHintLabel = helperLabel("Must match your Mission Control desktop shortcuts.")
+        let shortcutHintLabel = helperLabel("Match Mission Control shortcuts.")
 
         let launchDelayLabel = NSTextField(labelWithString: "Launch delay")
         launchDelayLabel.font = .systemFont(ofSize: 13)
+        launchDelayLabel.alignment = .left
         launchDelayStepper.minValue = 50
         launchDelayStepper.maxValue = 2000
         launchDelayStepper.increment = 50
@@ -182,10 +271,10 @@ final class RulesWindowController: NSWindowController {
         watchLaunchesCheckbox.action = #selector(toggleWatchLaunches)
 
         let diagnosticsButton = NSButton(title: "Open Diagnostics", target: self, action: #selector(showDiagnostics))
-        diagnosticsButton.bezelStyle = .rounded
+        styleButton(diagnosticsButton)
 
         let refreshButton = NSButton(title: "Refresh", target: self, action: #selector(refresh))
-        refreshButton.bezelStyle = .rounded
+        styleButton(refreshButton)
 
         let maxDesktopsRow = row(label: maxDesktopsLabel, control: maxDesktopsPopup)
         let shortcutRow = row(label: shortcutLabel, control: shortcutModifierPopup)
@@ -195,33 +284,39 @@ final class RulesWindowController: NSWindowController {
         actionsRow.alignment = .centerY
         actionsRow.spacing = 8
 
-        let stack = NSStackView(views: [title, maxDesktopsRow, shortcutRow, shortcutHintLabel, launchDelayRow, watchLaunchesCheckbox, actionsRow])
+        let stack = NSStackView(views: [title, descriptionLabel, spacer(height: 4), maxDesktopsRow, shortcutRow, shortcutHintLabel, launchDelayRow, watchLaunchesCheckbox, spacer(height: 4), actionsRow])
         stack.orientation = .vertical
-        stack.alignment = .width
+        stack.alignment = .leading
         stack.spacing = 10
-        return stack
+        return makeCard(containing: stack)
     }
 
     private func makeSavedAppsSection() -> NSView {
         let title = sectionLabel("Saved Apps")
+        let descriptionLabel = helperLabel("Double-click to launch on its saved desktop.")
 
         let scrollView = NSScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.borderType = .bezelBorder
+        scrollView.borderType = .noBorder
         scrollView.hasVerticalScroller = true
         scrollView.documentView = tableView
+        scrollView.drawsBackground = false
 
-        tableView.headerView = nil
         tableView.usesAlternatingRowBackgroundColors = true
         tableView.allowsEmptySelection = true
         tableView.delegate = self
         tableView.dataSource = self
         tableView.target = self
         tableView.doubleAction = #selector(openSelectedRule)
+        tableView.rowHeight = 24
+        tableView.intercellSpacing = NSSize(width: 0, height: 0)
+        tableView.backgroundColor = NSColor(calibratedRed: 0.14, green: 0.16, blue: 0.19, alpha: 0.85)
+        tableView.gridStyleMask = []
+        tableView.selectionHighlightStyle = .regular
 
-        addColumn(title: "App", identifier: "app", width: 170)
-        addColumn(title: "Bundle ID", identifier: "bundleID", width: 320)
-        addColumn(title: "Assignment", identifier: "desktop", width: 140)
+        addColumn(title: "App", identifier: "app", width: 180)
+        addColumn(title: "Bundle ID", identifier: "bundleID", width: 360)
+        addColumn(title: "Desktop", identifier: "desktop", width: 110)
 
         emptyStateLabel.alignment = .center
         emptyStateLabel.textColor = .secondaryLabelColor
@@ -230,25 +325,62 @@ final class RulesWindowController: NSWindowController {
 
         openButton.target = self
         openButton.action = #selector(openSelectedRule)
-        openButton.bezelStyle = .rounded
+        styleButton(openButton)
 
         removeButton.target = self
         removeButton.action = #selector(removeSelectedRule)
-        removeButton.bezelStyle = .rounded
+        styleButton(removeButton)
 
         let actionsStack = NSStackView(views: [openButton, removeButton])
         actionsStack.orientation = .horizontal
         actionsStack.alignment = .centerY
         actionsStack.spacing = 8
 
-        let stack = NSStackView(views: [title, scrollView, emptyStateLabel, actionsStack])
+        let titleStack = NSStackView(views: [title, descriptionLabel])
+        titleStack.orientation = .vertical
+        titleStack.alignment = .leading
+        titleStack.spacing = 8
+
+        let headerSpacer = NSView()
+        headerSpacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        let headerRow = NSStackView(views: [titleStack, headerSpacer, actionsStack])
+        headerRow.orientation = .horizontal
+        headerRow.alignment = .top
+        headerRow.spacing = 16
+
+        let tableContainer = NSVisualEffectView()
+        tableContainer.material = .contentBackground
+        tableContainer.blendingMode = .withinWindow
+        tableContainer.state = .active
+        tableContainer.wantsLayer = true
+        tableContainer.layer?.cornerRadius = 20
+        tableContainer.layer?.borderWidth = 1
+        tableContainer.layer?.borderColor = NSColor.white.withAlphaComponent(0.16).cgColor
+        tableContainer.layer?.shadowColor = NSColor.white.withAlphaComponent(0.14).cgColor
+        tableContainer.layer?.shadowOpacity = 0.18
+        tableContainer.layer?.shadowRadius = 16
+        tableContainer.layer?.shadowOffset = NSSize(width: 0, height: -1)
+        tableContainer.translatesAutoresizingMaskIntoConstraints = false
+        tableContainer.addSubview(scrollView)
+
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: tableContainer.topAnchor, constant: 0),
+            scrollView.leadingAnchor.constraint(equalTo: tableContainer.leadingAnchor, constant: 0),
+            scrollView.trailingAnchor.constraint(equalTo: tableContainer.trailingAnchor, constant: 0),
+            scrollView.bottomAnchor.constraint(equalTo: tableContainer.bottomAnchor, constant: 0)
+        ])
+
+        tableContainer.setContentHuggingPriority(.defaultLow, for: .vertical)
+        tableContainer.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+
+        let stack = NSStackView(views: [headerRow, tableContainer, emptyStateLabel])
         stack.orientation = .vertical
         stack.alignment = .width
-        stack.spacing = 10
+        stack.spacing = 12
 
-        scrollView.heightAnchor.constraint(greaterThanOrEqualToConstant: 240).isActive = true
+        tableContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 320).isActive = true
 
-        return stack
+        return makeCard(containing: stack, contentInsets: NSEdgeInsets(top: 20, left: 20, bottom: 20, right: 20))
     }
 
     private func apply(snapshot: SettingsSnapshot) {
@@ -314,27 +446,92 @@ final class RulesWindowController: NSWindowController {
         row.alignment = .centerY
         row.spacing = 12
         row.detachesHiddenViews = true
+        row.setHuggingPriority(.defaultLow, for: .horizontal)
         return row
+    }
+
+    private func makeCard(containing content: NSView, contentInsets: NSEdgeInsets = NSEdgeInsets(top: 18, left: 18, bottom: 18, right: 18)) -> NSView {
+        let card = NSVisualEffectView()
+        card.material = .sidebar
+        card.blendingMode = .withinWindow
+        card.state = .active
+        card.translatesAutoresizingMaskIntoConstraints = false
+        card.wantsLayer = true
+        card.layer?.cornerRadius = 24
+        card.layer?.borderWidth = 1
+        card.layer?.borderColor = NSColor.white.withAlphaComponent(0.16).cgColor
+        card.layer?.backgroundColor = NSColor.white.withAlphaComponent(0.05).cgColor
+        card.layer?.shadowColor = NSColor.white.withAlphaComponent(0.10).cgColor
+        card.layer?.shadowOpacity = 0.20
+        card.layer?.shadowRadius = 18
+        card.layer?.shadowOffset = NSSize(width: 0, height: -2)
+
+        content.translatesAutoresizingMaskIntoConstraints = false
+        card.addSubview(content)
+
+        NSLayoutConstraint.activate([
+            content.topAnchor.constraint(equalTo: card.topAnchor, constant: contentInsets.top),
+            content.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: contentInsets.left),
+            content.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -contentInsets.right),
+            content.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -contentInsets.bottom)
+        ])
+
+        return card
     }
 
     private func addColumn(title: String, identifier: String, width: CGFloat) {
         let column = NSTableColumn(identifier: NSUserInterfaceItemIdentifier(identifier))
         column.title = title
         column.width = width
+        column.minWidth = width * 0.7
         tableView.addTableColumn(column)
     }
 
     private func sectionLabel(_ title: String) -> NSTextField {
         let label = NSTextField(labelWithString: title)
-        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        label.alignment = .left
         return label
+    }
+
+    private func sectionHeader(_ title: String, detail: String) -> NSView {
+        let titleLabel = sectionLabel(title)
+        let detailLabel = helperLabel(detail)
+
+        let stack = NSStackView(views: [titleLabel, detailLabel])
+        stack.orientation = .vertical
+        stack.alignment = .leading
+        stack.spacing = 8
+        return stack
     }
 
     private func helperLabel(_ title: String) -> NSTextField {
         let label = NSTextField(labelWithString: title)
         label.font = .systemFont(ofSize: 12)
         label.textColor = .secondaryLabelColor
+        label.maximumNumberOfLines = 0
+        label.alignment = .left
+        configureWrappingLabel(label)
         return label
+    }
+
+    private func configureWrappingLabel(_ label: NSTextField) {
+        label.lineBreakMode = .byWordWrapping
+        label.cell?.wraps = true
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
+    }
+
+    private func spacer(height: CGFloat) -> NSView {
+        let view = NSView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.heightAnchor.constraint(equalToConstant: height).isActive = true
+        return view
+    }
+
+    private func styleButton(_ button: NSButton) {
+        button.bezelStyle = .rounded
+        button.controlSize = .regular
     }
 
     private func updateTestDesktopPopup(maxDesktopsShown: Int) {
@@ -447,7 +644,27 @@ extension RulesWindowController: NSTableViewDataSource, NSTableViewDelegate {
 
         let label = NSTextField(labelWithString: value)
         label.lineBreakMode = .byTruncatingMiddle
-        return label
+        label.font = .systemFont(ofSize: 13)
+        label.alignment = .left
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        let container = NSTableCellView()
+        container.addSubview(label)
+
+        NSLayoutConstraint.activate([
+            label.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 12),
+            label.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -8),
+            label.centerYAnchor.constraint(equalTo: container.centerYAnchor)
+        ])
+
+        return container
+    }
+
+    func tableView(_ tableView: NSTableView, rowViewForRow row: Int) -> NSTableRowView? {
+        let rowView = NSTableRowView()
+        rowView.wantsLayer = true
+        rowView.layer?.cornerRadius = 8
+        return rowView
     }
 
     func tableViewSelectionDidChange(_ notification: Notification) {
