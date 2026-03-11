@@ -152,7 +152,9 @@ final class DiagnosticsWindowController: NSWindowController {
             "\(dateFormatter.string(from: entry.timestamp)) [\(entry.level.rawValue)] [\(entry.category)] \(entry.message)"
         }
 
-        return lines.isEmpty ? "No diagnostics yet." : lines.joined(separator: "\n")
+        return lines.isEmpty
+            ? "No diagnostics yet.\n\nUse Perch to assign an app, open an assigned app, or test desktop switching. Recent activity and errors will appear here."
+            : lines.joined(separator: "\n")
     }
 }
 
