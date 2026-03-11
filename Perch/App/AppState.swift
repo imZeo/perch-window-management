@@ -133,6 +133,17 @@ final class AppState {
         permissionsService.isAccessibilityTrusted(prompt: false)
     }
 
+    func testSwitchToDesktop(_ desktopNumber: Int) {
+        guard isAccessibilityTrusted() else {
+            logger.error("Accessibility permission is required to test desktop switching")
+            requestAccessibilityIfNeeded()
+            return
+        }
+
+        logger.info("Testing desktop switch to desktop \(desktopNumber) with \(shortcutModifier.title)")
+        spaceSwitcher.switchToDesktop(desktopNumber, modifier: shortcutModifier)
+    }
+
     func setMaxDesktopsShown(_ count: Int) {
         maxDesktopsShown = min(max(count, 1), 9)
         settingsStore.saveMaxDesktopsShown(maxDesktopsShown)

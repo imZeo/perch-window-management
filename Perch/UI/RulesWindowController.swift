@@ -18,16 +18,22 @@ final class RulesWindowController: NSWindowController {
     var onLaunchDelayChanged: ((Int) -> Void)?
     var onWatchLaunchesChanged: ((Bool) -> Void)?
     var onShortcutModifierChanged: ((DesktopShortcutModifier) -> Void)?
+    var onTestDesktopSwitch: ((Int) -> Void)?
     var onShowDiagnostics: (() -> Void)?
 
+    private let setupStatusLabel = NSTextField(labelWithString: "")
     private let accessibilityStatusLabel = NSTextField(labelWithString: "")
+    private let shortcutStatusLabel = NSTextField(labelWithString: "")
+    private let launchDelayStatusLabel = NSTextField(labelWithString: "")
     private let maxDesktopsPopup = NSPopUpButton()
     private let shortcutModifierPopup = NSPopUpButton()
+    private let testDesktopPopup = NSPopUpButton()
+    private let testSwitchButton = NSButton(title: "Test Switch", target: nil, action: nil)
     private let launchDelayValueLabel = NSTextField(labelWithString: "")
     private let launchDelayStepper = NSStepper()
     private let watchLaunchesCheckbox = NSButton(checkboxWithTitle: "Watch launches and reopen assigned apps", target: nil, action: nil)
     private let tableView = NSTableView()
-    private let emptyStateLabel = NSTextField(labelWithString: "No saved assignments yet.")
+    private let emptyStateLabel = NSTextField(labelWithString: "No saved assignments yet. Assign a running app from the menu bar to create one.")
     private let openButton = NSButton(title: "Launch on Assigned Desktop", target: nil, action: nil)
     private let removeButton = NSButton(title: "Remove Rule", target: nil, action: nil)
 
@@ -119,16 +125,29 @@ final class RulesWindowController: NSWindowController {
     }
 
     private func makePermissionsSection() -> NSView {
-        let title = sectionLabel("Accessibility")
+        let title = sectionLabel("Setup")
+        setupStatusLabel.font = .systemFont(ofSize: 13, weight: .semibold)
+
         accessibilityStatusLabel.font = .systemFont(ofSize: 13)
         accessibilityStatusLabel.textColor = .secondaryLabelColor
+        shortcutStatusLabel.font = .systemFont(ofSize: 13)
+        shortcutStatusLabel.textColor = .secondaryLabelColor
+        launchDelayStatusLabel.font = .systemFont(ofSize: 13)
+        launchDelayStatusLabel.textColor = .secondaryLabelColor
 
         let requestButton = NSButton(title: "Request Access", target: self, action: #selector(requestAccessibility))
         requestButton.bezelStyle = .rounded
 
-        let stack = NSStackView(views: [title, accessibilityStatusLabel, requestButton])
+        testSwitchButton.target = self
+        testSwitchButton.action = #selector(testDesktopSwitch)
+        testSwitchButton.bezelStyle = .rounded
+
+        let testRow = row(label: NSTextField(labelWithString: "Test desktop switch"), controls: [testDesktopPopup, testSwitchButton])
+        let helper = helperLabel("Test Switch only changes desktop so you can verify the shortcut and timing.")
+
+        let stack = NSStackView(views: [title, setupStatusLabel, accessibilityStatusLabel, shortcutStatusLabel, launchDelayStatusLabel, testRow, helper, requestButton])
         stack.orientation = .vertical
-        stack.alignment = .leading
+        stack.alignment = .width
         stack.spacing = 8
         return stack
     }
@@ -240,12 +259,21 @@ final class RulesWindowController: NSWindowController {
         accessibilityStatusLabel.stringValue = snapshot.accessibilityTrusted
             ? "Granted. Desktop switching is available."
             : "Not granted. Perch cannot switch desktops until access is approved."
+        setupStatusLabel.stringValue = snapshot.accessibilityTrusted
+            ? "Setup ready. Perch can switch desktops."
+            : "Setup incomplete. Perch cannot switch desktops yet."
+        setupStatusLabel.textColor = snapshot.accessibilityTrusted ? .labelColor : .systemRed
+        shortcutStatusLabel.stringValue = "Shortcut: \(snapshot.shortcutModifier.title)"
+        launchDelayStatusLabel.stringValue = "Launch delay: \(snapshot.launchDelayMilliseconds) ms"
 
         maxDesktopsPopup.selectItem(withTitle: String(snapshot.maxDesktopsShown))
         launchDelayStepper.integerValue = snapshot.launchDelayMilliseconds
         launchDelayValueLabel.stringValue = "\(snapshot.launchDelayMilliseconds) ms"
         watchLaunchesCheckbox.state = snapshot.watchLaunchesEnabled ? .on : .off
         shortcutModifierPopup.selectItem(at: DesktopShortcutModifier.allCases.firstIndex(of: snapshot.shortcutModifier) ?? 0)
+        updateTestDesktopPopup(maxDesktopsShown: snapshot.maxDesktopsShown)
+        testDesktopPopup.isEnabled = snapshot.accessibilityTrusted
+        testSwitchButton.isEnabled = snapshot.accessibilityTrusted
 
         emptyStateLabel.isHidden = !rules.isEmpty
         tableView.reloadData()
@@ -307,6 +335,15 @@ final class RulesWindowController: NSWindowController {
         label.font = .systemFont(ofSize: 12)
         label.textColor = .secondaryLabelColor
         return label
+    }
+
+    private func updateTestDesktopPopup(maxDesktopsShown: Int) {
+        let previousSelection = Int(testDesktopPopup.selectedItem?.title ?? "") ?? 1
+        let titles = (1...maxDesktopsShown).map { "Desktop \($0)" }
+        testDesktopPopup.removeAllItems()
+        testDesktopPopup.addItems(withTitles: titles)
+        let selectedDesktop = min(max(previousSelection, 1), maxDesktopsShown)
+        testDesktopPopup.selectItem(withTitle: "Desktop \(selectedDesktop)")
     }
 
     private func selectedRule() -> AppRule? {
@@ -371,6 +408,13 @@ final class RulesWindowController: NSWindowController {
     @objc
     private func showDiagnostics() {
         onShowDiagnostics?()
+    }
+
+    @objc
+    private func testDesktopSwitch() {
+        guard let title = testDesktopPopup.selectedItem?.title,
+              let desktopNumber = Int(title.replacingOccurrences(of: "Desktop ", with: "")) else { return }
+        onTestDesktopSwitch?(desktopNumber)
     }
 }
 

@@ -9,6 +9,7 @@ enum MenuCommand {
     case openAssigned(bundleID: String)
     case assign(bundleID: String, displayName: String, assignmentTarget: AssignmentTarget)
     case clear(bundleID: String)
+    case testSwitch(desktop: Int)
     case refresh
     case requestAccessibility
     case showRules
@@ -36,10 +37,21 @@ final class MenuBuilder {
     ) -> NSMenu {
         let menu = NSMenu()
         let rulesByBundleID = Dictionary(uniqueKeysWithValues: rules.map { ($0.bundleID, $0) })
+        let runningAppsByBundleID = Dictionary(uniqueKeysWithValues: runningApps.map { ($0.bundleID, $0) })
+
+        if !accessibilityTrusted {
+            menu.addItem(sectionHeader("Setup Required"))
+            menu.addItem(actionItem(
+                "Accessibility access is required for desktop switching",
+                command: .requestAccessibility,
+                target: target
+            ))
+            menu.addItem(.separator())
+        }
 
         menu.addItem(sectionHeader("Unassigned Apps"))
         if runningApps.isEmpty {
-            menu.addItem(disabledItem("No regular apps running"))
+            menu.addItem(disabledItem("No regular apps running. Open an app, then assign it from this menu."))
         } else {
             let sortedApps = runningApps.sorted {
                 $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
@@ -115,6 +127,7 @@ final class MenuBuilder {
                             savedRuleItem(
                                 rule,
                                 isRunning: runningBundleIDs.contains(rule.bundleID),
+                                icon: iconForSavedRule(rule, runningAppsByBundleID: runningAppsByBundleID),
                                 target: target
                             )
                         )
@@ -151,11 +164,10 @@ final class MenuBuilder {
         maxDesktopAssignments: Int,
         target: MenuActionHandling
     ) -> NSMenuItem {
-        let item = NSMenuItem(title: app.displayName, action: nil, keyEquivalent: "")
-        item.image = resizedMenuIcon(from: app.icon)
-
         let submenu = NSMenu(title: app.displayName)
         let assignedTarget = rules.first(where: { $0.bundleID == app.bundleID })?.assignmentTarget
+        let item = NSMenuItem(title: app.displayName, action: nil, keyEquivalent: "")
+        item.image = resizedMenuIcon(from: app.icon)
 
         if let assignedTarget {
             submenu.addItem(actionItem(
@@ -208,9 +220,11 @@ final class MenuBuilder {
     private func savedRuleItem(
         _ rule: AppRule,
         isRunning: Bool,
+        icon: NSImage?,
         target: MenuActionHandling
     ) -> NSMenuItem {
-        let item = NSMenuItem(title: "\(rule.displayName) -> \(rule.assignmentDisplayName)", action: nil, keyEquivalent: "")
+        let item = NSMenuItem(title: rule.displayName, action: nil, keyEquivalent: "")
+        item.image = resizedMenuIcon(from: icon)
 
         let submenu = NSMenu(title: rule.displayName)
         submenu.addItem(
@@ -225,6 +239,21 @@ final class MenuBuilder {
 
         item.submenu = submenu
         return item
+    }
+
+    private func iconForSavedRule(
+        _ rule: AppRule,
+        runningAppsByBundleID: [String: RunningAppInfo]
+    ) -> NSImage? {
+        if let runningIcon = runningAppsByBundleID[rule.bundleID]?.icon {
+            return runningIcon
+        }
+
+        guard let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: rule.bundleID) else {
+            return nil
+        }
+
+        return NSWorkspace.shared.icon(forFile: appURL.path)
     }
 
     private func disabledItem(_ title: String) -> NSMenuItem {

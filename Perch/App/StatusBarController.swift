@@ -38,6 +38,9 @@ final class StatusBarController: NSObject {
         rulesWindowController.onShortcutModifierChanged = { [weak self] modifier in
             self?.appState.setShortcutModifier(modifier)
         }
+        rulesWindowController.onTestDesktopSwitch = { [weak self] desktopNumber in
+            self?.appState.testSwitchToDesktop(desktopNumber)
+        }
         rulesWindowController.onShowDiagnostics = { [weak self] in
             self?.diagnosticsWindowController.show()
         }
@@ -118,6 +121,8 @@ final class StatusBarController: NSObject {
             appState.assign(assignmentTarget, to: app)
         case .clear(let bundleID):
             appState.clearAssignment(for: bundleID)
+        case .testSwitch(let desktop):
+            appState.testSwitchToDesktop(desktop)
         case .refresh:
             appState.reload()
         case .requestAccessibility:
