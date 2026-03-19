@@ -37,7 +37,9 @@ final class MenuBuilder {
     ) -> NSMenu {
         let menu = NSMenu()
         let rulesByBundleID = Dictionary(uniqueKeysWithValues: rules.map { ($0.bundleID, $0) })
-        let runningAppsByBundleID = Dictionary(uniqueKeysWithValues: runningApps.map { ($0.bundleID, $0) })
+        let runningAppsByBundleID = runningApps.reduce(into: [String: RunningAppInfo]()) { partialResult, app in
+            partialResult[app.bundleID] = partialResult[app.bundleID] ?? app
+        }
 
         if !accessibilityTrusted {
             menu.addItem(sectionHeader("Setup Required"))

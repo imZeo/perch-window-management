@@ -551,7 +551,7 @@ final class RulesWindowController: NSWindowController {
     }
 
     private func updateTestDesktopPopup(maxDesktopsShown: Int) {
-        let previousSelection = Int(testDesktopPopup.selectedItem?.title ?? "") ?? 1
+        let previousSelection = Self.desktopNumber(from: testDesktopPopup.selectedItem?.title) ?? 1
         let titles = (1...maxDesktopsShown).map { "Desktop \($0)" }
         testDesktopPopup.removeAllItems()
         testDesktopPopup.addItems(withTitles: titles)
@@ -630,9 +630,14 @@ final class RulesWindowController: NSWindowController {
 
     @objc
     private func testDesktopSwitch() {
-        guard let title = testDesktopPopup.selectedItem?.title,
-              let desktopNumber = Int(title.replacingOccurrences(of: "Desktop ", with: "")) else { return }
+        guard let desktopNumber = Self.desktopNumber(from: testDesktopPopup.selectedItem?.title) else { return }
         onTestDesktopSwitch?(desktopNumber)
+    }
+
+    static func desktopNumber(from title: String?) -> Int? {
+        guard let title else { return nil }
+        guard title.hasPrefix("Desktop ") else { return nil }
+        return Int(title.replacingOccurrences(of: "Desktop ", with: ""))
     }
 }
 

@@ -1,6 +1,35 @@
 import AppKit
 
 final class AppState {
+    struct LaunchWatchSuppressionState {
+        private struct Record {
+            let expiresAt: Date
+        }
+
+        private var recordsByBundleID: [String: Record] = [:]
+
+        mutating func register(bundleID: String, now: Date, expiryInterval: TimeInterval) {
+            recordsByBundleID[bundleID] = Record(expiresAt: now.addingTimeInterval(expiryInterval))
+        }
+
+        mutating func consume(bundleID: String, now: Date) -> Bool {
+            guard let record = recordsByBundleID[bundleID] else { return false }
+            guard record.expiresAt >= now else {
+                recordsByBundleID.removeValue(forKey: bundleID)
+                return false
+            }
+
+            recordsByBundleID.removeValue(forKey: bundleID)
+            return true
+        }
+
+        mutating func clearExpired(now: Date) {
+            recordsByBundleID = recordsByBundleID.filter { _, record in
+                record.expiresAt >= now
+            }
+        }
+    }
+
     private let runningAppsService: RunningAppsService
     private let rulesStore: RulesStore
     private let settingsStore: SettingsStore
@@ -20,7 +49,7 @@ final class AppState {
     private(set) var launchAtLoginRequiresApproval: Bool
     private(set) var shortcutModifier: DesktopShortcutModifier
 
-    private var suppressedLaunchWatchBundleIDs: Set<String> = []
+    private var launchWatchSuppressionState = LaunchWatchSuppressionState()
 
     var onChange: (() -> Void)?
 
@@ -114,7 +143,9 @@ final class AppState {
             return
         }
 
-        if suppressLaunchWatch {
+        let appIsAlreadyRunning = runningApps.contains { $0.bundleID == bundleID }
+
+        if suppressLaunchWatch && !appIsAlreadyRunning {
             registerSuppressedLaunchWatch(for: bundleID)
         }
 
@@ -209,7 +240,9 @@ final class AppState {
         guard let bundleID = application.bundleIdentifier else { return }
         guard let rule = rule(for: bundleID) else { return }
 
-        if suppressedLaunchWatchBundleIDs.remove(bundleID) != nil {
+        clearExpiredSuppressedLaunchWatches()
+
+        if consumeSuppressedLaunchWatch(for: bundleID) {
             logger.info("Skipped launch watch for \(bundleID) because Perch initiated the launch")
             return
         }
@@ -224,10 +257,14 @@ final class AppState {
     }
 
     private func registerSuppressedLaunchWatch(for bundleID: String) {
-        suppressedLaunchWatchBundleIDs.insert(bundleID)
+        launchWatchSuppressionState.register(bundleID: bundleID, now: Date(), expiryInterval: 15)
+    }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) { [weak self] in
-            self?.suppressedLaunchWatchBundleIDs.remove(bundleID)
-        }
+    private func consumeSuppressedLaunchWatch(for bundleID: String) -> Bool {
+        launchWatchSuppressionState.consume(bundleID: bundleID, now: Date())
+    }
+
+    private func clearExpiredSuppressedLaunchWatches() {
+        launchWatchSuppressionState.clearExpired(now: Date())
     }
 }
