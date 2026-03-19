@@ -7,7 +7,7 @@
           "value" : "light"
         }
       ],
-      "filename" : "Bird icon white.png",
+      "filename" : "Bird icon black.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
@@ -18,7 +18,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "Bird icon black.png",
+      "filename" : "Bird icon white.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
