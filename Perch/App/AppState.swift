@@ -7,6 +7,7 @@ final class AppState {
     private let spaceSwitcher: SpaceSwitcher
     private let appLauncher: AppLauncher
     private let launchObserver: LaunchObserver
+    private let launchAtLoginService: LaunchAtLoginService
     private let permissionsService: PermissionsService
     private let logger: AppLogger
 
@@ -15,6 +16,8 @@ final class AppState {
     private(set) var maxDesktopsShown: Int
     private(set) var launchDelayMilliseconds: Int
     private(set) var watchLaunchesEnabled: Bool
+    private(set) var launchAtLoginEnabled: Bool
+    private(set) var launchAtLoginRequiresApproval: Bool
     private(set) var shortcutModifier: DesktopShortcutModifier
 
     private var suppressedLaunchWatchBundleIDs: Set<String> = []
@@ -28,6 +31,7 @@ final class AppState {
         spaceSwitcher: SpaceSwitcher = SpaceSwitcher(),
         appLauncher: AppLauncher = AppLauncher(),
         launchObserver: LaunchObserver = LaunchObserver(),
+        launchAtLoginService: LaunchAtLoginService = LaunchAtLoginService(),
         permissionsService: PermissionsService = PermissionsService(),
         logger: AppLogger = AppLogger(category: "AppState")
     ) {
@@ -37,12 +41,16 @@ final class AppState {
         self.spaceSwitcher = spaceSwitcher
         self.appLauncher = appLauncher
         self.launchObserver = launchObserver
+        self.launchAtLoginService = launchAtLoginService
         self.permissionsService = permissionsService
         self.logger = logger
         self.maxDesktopsShown = settingsStore.loadMaxDesktopsShown()
         self.launchDelayMilliseconds = settingsStore.loadLaunchDelayMilliseconds()
         self.watchLaunchesEnabled = settingsStore.loadWatchLaunchesEnabled()
         self.shortcutModifier = settingsStore.loadShortcutModifier()
+        let launchAtLoginStatus = launchAtLoginService.status()
+        self.launchAtLoginEnabled = launchAtLoginStatus != .disabled
+        self.launchAtLoginRequiresApproval = launchAtLoginStatus == .requiresApproval
     }
 
     func start() {
@@ -169,6 +177,19 @@ final class AppState {
         shortcutModifier = modifier
         settingsStore.saveShortcutModifier(modifier)
         logger.info("Updated shortcut modifier to \(modifier.title)")
+        onChange?()
+    }
+
+    func setLaunchAtLoginEnabled(_ enabled: Bool) {
+        let updateSucceeded = launchAtLoginService.setEnabled(enabled)
+        let launchAtLoginStatus = launchAtLoginService.status()
+        launchAtLoginEnabled = launchAtLoginStatus != .disabled
+        launchAtLoginRequiresApproval = launchAtLoginStatus == .requiresApproval
+
+        if !updateSucceeded {
+            logger.error("Keeping launch at login state at \(launchAtLoginEnabled ? "enabled" : "disabled")")
+        }
+
         onChange?()
     }
 

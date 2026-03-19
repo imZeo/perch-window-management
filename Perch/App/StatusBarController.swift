@@ -35,6 +35,9 @@ final class StatusBarController: NSObject {
         rulesWindowController.onWatchLaunchesChanged = { [weak self] enabled in
             self?.appState.setWatchLaunchesEnabled(enabled)
         }
+        rulesWindowController.onLaunchAtLoginChanged = { [weak self] enabled in
+            self?.appState.setLaunchAtLoginEnabled(enabled)
+        }
         rulesWindowController.onShortcutModifierChanged = { [weak self] modifier in
             self?.appState.setShortcutModifier(modifier)
         }
@@ -98,6 +101,8 @@ final class StatusBarController: NSObject {
             maxDesktopsShown: appState.maxDesktopsShown,
             launchDelayMilliseconds: appState.launchDelayMilliseconds,
             watchLaunchesEnabled: appState.watchLaunchesEnabled,
+            launchAtLoginEnabled: appState.launchAtLoginEnabled,
+            launchAtLoginRequiresApproval: appState.launchAtLoginRequiresApproval,
             shortcutModifier: appState.shortcutModifier
         )
     }

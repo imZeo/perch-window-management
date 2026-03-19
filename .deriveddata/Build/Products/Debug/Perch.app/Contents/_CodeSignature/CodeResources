@@ -10,7 +10,7 @@
 		</data>
 		<key>Resources/Assets.car</key>
 		<data>
-		9D2D/NXy5G+/AMpA61NNUFjcilM=
+		csI7crNKgcZzlXvzdwU/t3VPWnI=
 		</data>
 		<key>Resources/README.md</key>
 		<data>
@@ -23,10 +23,10 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			NvMELjhe9Ez4t5Q60x5dJdKbnPg=
+			RJurQGXdHQ3R4jQLxBUjjVjCiQY=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"36f3042e385ef44cf8b7943ad31e5d25d29b9cf8"</string>
+			<string>cdhash H"449bab4065dd1d0dd1e2340bc415238d58c28906"</string>
 		</dict>
 		<key>MacOS/__preview.dylib</key>
 		<dict>
@@ -48,7 +48,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			s8oTGAl8jYfketmoQg74Qr+1yDIE5vPijlF0R3ZO9wI=
+			NewZM6JLGFyUu5uzxXCBpG5oeqWS3tz1CponHlE5C40=
 			</data>
 		</dict>
 		<key>Resources/README.md</key>

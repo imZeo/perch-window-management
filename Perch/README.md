@@ -33,6 +33,7 @@ Perch currently supports these persisted settings:
   - `Command + Number`
 - `Launch delay`
 - `Watch launches and reopen assigned apps`
+- `Launch Perch automatically when you log in`
 
 ## How Desktop Switching Works
 

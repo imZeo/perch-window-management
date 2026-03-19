@@ -8,6 +8,7 @@
 /Users/zeo/Developer/Perch/Perch/Models/RunningAppInfo.swift
 /Users/zeo/Developer/Perch/Perch/Services/AppLauncher.swift
 /Users/zeo/Developer/Perch/Perch/Services/DiagnosticsStore.swift
+/Users/zeo/Developer/Perch/Perch/Services/LaunchAtLoginService.swift
 /Users/zeo/Developer/Perch/Perch/Services/LaunchObserver.swift
 /Users/zeo/Developer/Perch/Perch/Services/PermissionsService.swift
 /Users/zeo/Developer/Perch/Perch/Services/RulesStore.swift

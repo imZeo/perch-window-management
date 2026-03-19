@@ -407,6 +407,13 @@
     "moduleName" : "Security"
   },
   {
+    "clangModuleMapPath" : "\/Applications\/Xcode.app\/Contents\/Developer\/Platforms\/MacOSX.platform\/Developer\/SDKs\/MacOSX.sdk\/System\/Library\/Frameworks\/ServiceManagement.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/Users\/zeo\/Developer\/Perch\/.deriveddata\/ModuleCache.noindex\/ServiceManagement-3GKVCZ6JNFIJOIUKJ52J6OHAT.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "ServiceManagement"
+  },
+  {
     "clangModuleMapPath" : "\/Applications\/Xcode.app\/Contents\/Developer\/Platforms\/MacOSX.platform\/Developer\/SDKs\/MacOSX.sdk\/usr\/include\/Spatial\/module.modulemap",
     "clangModulePath" : "\/Users\/zeo\/Developer\/Perch\/.deriveddata\/ModuleCache.noindex\/Spatial-9TJ4EBLF3MPOBVUUEM0NU1H31.pcm",
     "isBridgingHeaderDependency" : false,

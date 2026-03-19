@@ -116,6 +116,16 @@
     "swift-dependencies" : "/Users/zeo/Developer/Perch/.deriveddata/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsStore.swiftdeps",
     "swiftmodule" : "/Users/zeo/Developer/Perch/.deriveddata/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/DiagnosticsStore~partial.swiftmodule"
   },
+  "/Users/zeo/Developer/Perch/Perch/Services/LaunchAtLoginService.swift" : {
+    "const-values" : "/Users/zeo/Developer/Perch/.deriveddata/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchAtLoginService.swiftconstvalues",
+    "dependencies" : "/Users/zeo/Developer/Perch/.deriveddata/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchAtLoginService.d",
+    "diagnostics" : "/Users/zeo/Developer/Perch/.deriveddata/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchAtLoginService.dia",
+    "index-unit-output-path" : "/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchAtLoginService.o",
+    "llvm-bc" : "/Users/zeo/Developer/Perch/.deriveddata/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchAtLoginService.bc",
+    "object" : "/Users/zeo/Developer/Perch/.deriveddata/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchAtLoginService.o",
+    "swift-dependencies" : "/Users/zeo/Developer/Perch/.deriveddata/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchAtLoginService.swiftdeps",
+    "swiftmodule" : "/Users/zeo/Developer/Perch/.deriveddata/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchAtLoginService~partial.swiftmodule"
+  },
   "/Users/zeo/Developer/Perch/Perch/Services/LaunchObserver.swift" : {
     "const-values" : "/Users/zeo/Developer/Perch/.deriveddata/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchObserver.swiftconstvalues",
     "dependencies" : "/Users/zeo/Developer/Perch/.deriveddata/Build/Intermediates.noindex/Perch.build/Debug/Perch.build/Objects-normal/arm64/LaunchObserver.d",

@@ -6,6 +6,8 @@ struct SettingsSnapshot {
     let maxDesktopsShown: Int
     let launchDelayMilliseconds: Int
     let watchLaunchesEnabled: Bool
+    let launchAtLoginEnabled: Bool
+    let launchAtLoginRequiresApproval: Bool
     let shortcutModifier: DesktopShortcutModifier
 }
 
@@ -17,6 +19,7 @@ final class RulesWindowController: NSWindowController {
     var onMaxDesktopsChanged: ((Int) -> Void)?
     var onLaunchDelayChanged: ((Int) -> Void)?
     var onWatchLaunchesChanged: ((Bool) -> Void)?
+    var onLaunchAtLoginChanged: ((Bool) -> Void)?
     var onShortcutModifierChanged: ((DesktopShortcutModifier) -> Void)?
     var onTestDesktopSwitch: ((Int) -> Void)?
     var onShowDiagnostics: (() -> Void)?
@@ -32,6 +35,8 @@ final class RulesWindowController: NSWindowController {
     private let launchDelayValueLabel = NSTextField(labelWithString: "")
     private let launchDelayStepper = NSStepper()
     private let watchLaunchesCheckbox = NSButton(checkboxWithTitle: "Watch launches and reopen assigned apps", target: nil, action: nil)
+    private let launchAtLoginCheckbox = NSButton(checkboxWithTitle: "Launch Perch automatically when you log in", target: nil, action: nil)
+    private let launchAtLoginHintLabel = NSTextField(labelWithString: "")
     private let tableView = NSTableView()
     private let emptyStateLabel = NSTextField(labelWithString: "No saved assignments yet. Assign a running app from the menu bar to create one.")
     private let openButton = NSButton(title: "Launch on Assigned Desktop", target: nil, action: nil)
@@ -269,6 +274,13 @@ final class RulesWindowController: NSWindowController {
 
         watchLaunchesCheckbox.target = self
         watchLaunchesCheckbox.action = #selector(toggleWatchLaunches)
+        launchAtLoginCheckbox.target = self
+        launchAtLoginCheckbox.action = #selector(toggleLaunchAtLogin)
+        launchAtLoginHintLabel.font = .systemFont(ofSize: 12)
+        launchAtLoginHintLabel.textColor = .secondaryLabelColor
+        launchAtLoginHintLabel.maximumNumberOfLines = 0
+        launchAtLoginHintLabel.alignment = .left
+        configureWrappingLabel(launchAtLoginHintLabel)
 
         let diagnosticsButton = NSButton(title: "Open Diagnostics", target: self, action: #selector(showDiagnostics))
         styleButton(diagnosticsButton)
@@ -284,7 +296,7 @@ final class RulesWindowController: NSWindowController {
         actionsRow.alignment = .centerY
         actionsRow.spacing = 8
 
-        let stack = NSStackView(views: [title, descriptionLabel, spacer(height: 4), maxDesktopsRow, shortcutRow, shortcutHintLabel, launchDelayRow, watchLaunchesCheckbox, spacer(height: 4), actionsRow])
+        let stack = NSStackView(views: [title, descriptionLabel, spacer(height: 4), maxDesktopsRow, shortcutRow, shortcutHintLabel, launchDelayRow, watchLaunchesCheckbox, launchAtLoginCheckbox, launchAtLoginHintLabel, spacer(height: 4), actionsRow])
         stack.orientation = .vertical
         stack.alignment = .leading
         stack.spacing = 10
@@ -402,6 +414,10 @@ final class RulesWindowController: NSWindowController {
         launchDelayStepper.integerValue = snapshot.launchDelayMilliseconds
         launchDelayValueLabel.stringValue = "\(snapshot.launchDelayMilliseconds) ms"
         watchLaunchesCheckbox.state = snapshot.watchLaunchesEnabled ? .on : .off
+        launchAtLoginCheckbox.state = snapshot.launchAtLoginEnabled ? .on : .off
+        launchAtLoginHintLabel.stringValue = snapshot.launchAtLoginRequiresApproval
+            ? "macOS still needs approval before Perch can launch automatically at login."
+            : "Lets Perch start automatically after you sign in."
         shortcutModifierPopup.selectItem(at: DesktopShortcutModifier.allCases.firstIndex(of: snapshot.shortcutModifier) ?? 0)
         updateTestDesktopPopup(maxDesktopsShown: snapshot.maxDesktopsShown)
         testDesktopPopup.isEnabled = snapshot.accessibilityTrusted
@@ -593,6 +609,11 @@ final class RulesWindowController: NSWindowController {
     @objc
     private func toggleWatchLaunches() {
         onWatchLaunchesChanged?(watchLaunchesCheckbox.state == .on)
+    }
+
+    @objc
+    private func toggleLaunchAtLogin() {
+        onLaunchAtLoginChanged?(launchAtLoginCheckbox.state == .on)
     }
 
     @objc
