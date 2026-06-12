@@ -98,17 +98,12 @@ final class RulesWindowController: NSWindowController {
         guard let window else { return }
 
         window.delegate = self
-        window.backgroundColor = NSColor(calibratedRed: 0.10, green: 0.12, blue: 0.15, alpha: 1.0)
-        window.isOpaque = false
-        window.titlebarAppearsTransparent = true
+        window.backgroundColor = .windowBackgroundColor
+        window.isOpaque = true
+        window.titlebarAppearsTransparent = false
         window.toolbarStyle = .unified
 
-        let contentView = NSVisualEffectView(frame: NSRect(x: 0, y: 0, width: 1180, height: 760))
-        contentView.material = .underWindowBackground
-        contentView.blendingMode = .behindWindow
-        contentView.state = .active
-        contentView.wantsLayer = true
-        contentView.layer?.backgroundColor = NSColor(calibratedRed: 0.13, green: 0.15, blue: 0.19, alpha: 0.84).cgColor
+        let contentView = SettingsContainerView(style: .window, frame: NSRect(x: 0, y: 0, width: 1180, height: 760))
         window.contentView = contentView
 
         let titleLabel = NSTextField(labelWithString: "Perch Settings")
@@ -312,7 +307,8 @@ final class RulesWindowController: NSWindowController {
         scrollView.borderType = .noBorder
         scrollView.hasVerticalScroller = true
         scrollView.documentView = tableView
-        scrollView.drawsBackground = false
+        scrollView.drawsBackground = true
+        scrollView.backgroundColor = .controlBackgroundColor
 
         tableView.usesAlternatingRowBackgroundColors = true
         tableView.allowsEmptySelection = true
@@ -322,7 +318,7 @@ final class RulesWindowController: NSWindowController {
         tableView.doubleAction = #selector(openSelectedRule)
         tableView.rowHeight = 24
         tableView.intercellSpacing = NSSize(width: 0, height: 0)
-        tableView.backgroundColor = NSColor(calibratedRed: 0.14, green: 0.16, blue: 0.19, alpha: 0.85)
+        tableView.backgroundColor = .controlBackgroundColor
         tableView.gridStyleMask = []
         tableView.selectionHighlightStyle = .regular
 
@@ -360,18 +356,7 @@ final class RulesWindowController: NSWindowController {
         headerRow.alignment = .top
         headerRow.spacing = 16
 
-        let tableContainer = NSVisualEffectView()
-        tableContainer.material = .contentBackground
-        tableContainer.blendingMode = .withinWindow
-        tableContainer.state = .active
-        tableContainer.wantsLayer = true
-        tableContainer.layer?.cornerRadius = 20
-        tableContainer.layer?.borderWidth = 1
-        tableContainer.layer?.borderColor = NSColor.white.withAlphaComponent(0.16).cgColor
-        tableContainer.layer?.shadowColor = NSColor.white.withAlphaComponent(0.14).cgColor
-        tableContainer.layer?.shadowOpacity = 0.18
-        tableContainer.layer?.shadowRadius = 16
-        tableContainer.layer?.shadowOffset = NSSize(width: 0, height: -1)
+        let tableContainer = SettingsContainerView(style: .table)
         tableContainer.translatesAutoresizingMaskIntoConstraints = false
         tableContainer.addSubview(scrollView)
 
@@ -467,20 +452,8 @@ final class RulesWindowController: NSWindowController {
     }
 
     private func makeCard(containing content: NSView, contentInsets: NSEdgeInsets = NSEdgeInsets(top: 18, left: 18, bottom: 18, right: 18)) -> NSView {
-        let card = NSVisualEffectView()
-        card.material = .sidebar
-        card.blendingMode = .withinWindow
-        card.state = .active
+        let card = SettingsContainerView(style: .card)
         card.translatesAutoresizingMaskIntoConstraints = false
-        card.wantsLayer = true
-        card.layer?.cornerRadius = 24
-        card.layer?.borderWidth = 1
-        card.layer?.borderColor = NSColor.white.withAlphaComponent(0.16).cgColor
-        card.layer?.backgroundColor = NSColor.white.withAlphaComponent(0.05).cgColor
-        card.layer?.shadowColor = NSColor.white.withAlphaComponent(0.10).cgColor
-        card.layer?.shadowOpacity = 0.20
-        card.layer?.shadowRadius = 18
-        card.layer?.shadowOffset = NSSize(width: 0, height: -2)
 
         content.translatesAutoresizingMaskIntoConstraints = false
         card.addSubview(content)
@@ -686,14 +659,87 @@ extension RulesWindowController: NSTableViewDataSource, NSTableViewDelegate {
         return container
     }
 
-    func tableView(_ tableView: NSTableView, rowViewForRow row: Int) -> NSTableRowView? {
-        let rowView = NSTableRowView()
-        rowView.wantsLayer = true
-        rowView.layer?.cornerRadius = 8
-        return rowView
-    }
-
     func tableViewSelectionDidChange(_ notification: Notification) {
         updateButtons()
+    }
+}
+
+private final class SettingsContainerView: NSView {
+    enum Style {
+        case window
+        case card
+        case table
+    }
+
+    private let style: Style
+
+    init(style: Style, frame frameRect: NSRect = .zero) {
+        self.style = style
+        super.init(frame: frameRect)
+        wantsLayer = true
+        updateAppearance()
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        updateAppearance()
+    }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        updateAppearance()
+    }
+
+    private func updateAppearance() {
+        guard let layer else { return }
+
+        let isDark = effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+
+        switch style {
+        case .window:
+            layer.cornerRadius = 0
+            layer.borderWidth = 0
+            layer.masksToBounds = false
+            layer.backgroundColor = (isDark
+                ? NSColor(calibratedRed: 0.11, green: 0.12, blue: 0.14, alpha: 1.0)
+                : NSColor(calibratedRed: 0.95, green: 0.96, blue: 0.97, alpha: 1.0)
+            ).cgColor
+
+        case .card:
+            layer.cornerRadius = 8
+            layer.borderWidth = 1
+            layer.masksToBounds = false
+            layer.backgroundColor = (isDark
+                ? NSColor(calibratedRed: 0.16, green: 0.17, blue: 0.19, alpha: 0.92)
+                : NSColor(calibratedWhite: 1.0, alpha: 0.86)
+            ).cgColor
+            layer.borderColor = (isDark
+                ? NSColor.white.withAlphaComponent(0.10)
+                : NSColor.black.withAlphaComponent(0.08)
+            ).cgColor
+            layer.shadowColor = NSColor.black.cgColor
+            layer.shadowOpacity = isDark ? 0.22 : 0.08
+            layer.shadowRadius = 10
+            layer.shadowOffset = NSSize(width: 0, height: -1)
+
+        case .table:
+            layer.cornerRadius = 8
+            layer.borderWidth = 1
+            layer.masksToBounds = true
+            layer.backgroundColor = (isDark
+                ? NSColor(calibratedRed: 0.12, green: 0.13, blue: 0.15, alpha: 1.0)
+                : NSColor.controlBackgroundColor
+            ).cgColor
+            layer.borderColor = (isDark
+                ? NSColor.white.withAlphaComponent(0.12)
+                : NSColor.black.withAlphaComponent(0.10)
+            ).cgColor
+            layer.shadowOpacity = 0
+        }
     }
 }
