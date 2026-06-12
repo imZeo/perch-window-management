@@ -1,5 +1,7 @@
+.build/
 .derived-data/
 .derived-data-*/
+.deriveddata/
 DerivedData/
 build/
 

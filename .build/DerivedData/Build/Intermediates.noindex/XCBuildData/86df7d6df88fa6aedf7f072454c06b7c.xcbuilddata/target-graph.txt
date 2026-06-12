@@ -1,2 +1,0 @@
-Target dependency graph (1 target)
-Target 'Perch' in project 'Perch' (no dependencies)
